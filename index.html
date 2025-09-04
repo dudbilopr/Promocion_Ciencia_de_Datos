@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Taller de Ciencia de Datos - UNAB</title>
+    <!-- Inclusión de Font Awesome para los iconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <style>
+        :root {
+            --unab-gold: #EAAA00;
+            --unab-blue: #005A8D;
+            --background-light: #f4f7f6;
+            --surface-light: #ffffff;
+            --text-dark: #2c3e50;
+            --text-light: #ffffff;
+            --border-color: #e0e0e0;
+            --code-bg: #2d3748;
+        }
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.7;
+            margin: 0;
+            background-color: var(--background-light);
+            color: var(--text-dark);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+        .presentation-container {
+            width: 95%;
+            max-width: 1100px;
+            height: 90vh;
+            max-height: 720px;
+            background-color: var(--surface-light);
+            border-radius: 16px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+        }
+        .slide {
+            padding: 30px 50px;
+            display: none;
+            flex-grow: 1;
+            overflow-y: auto;
+        }
+        .slide.active { display: block; }
+        .slide-header { text-align: center; }
+        .slide h2 {
+            font-size: 2.2em;
+            color: var(--unab-blue);
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 15px;
+            margin-bottom: 30px;
+        }
+        .unab-logo {
+            max-width: 220px;
+            margin: 10px auto;
+            display: block;
+        }
+        p, li { font-size: 1.1em; color: #34495e; }
+        
+        .slide-content {
+            display: flex;
+            gap: 40px;
+            align-items: flex-start;
+            margin-bottom: 20px;
+        }
+        .text-column, .code-column {
+            flex: 1;
+        }
+        
+        pre {
+            background-color: var(--code-bg);
+            color: #e2e8f0;
+            border: 1px solid #4a5568;
+            padding: 20px;
+            border-radius: 12px;
+            font-size: 0.9em;
+            position: relative;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        pre::before {
+            content: "PYTHON";
+            position: absolute;
+            top: -12px;
+            right: 20px;
+            background: var(--unab-gold);
+            color: var(--text-dark);
+            padding: 3px 10px;
+            border-radius: 5px;
+            font-size: 0.8em;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+        }
+        pre code {
+            font-family: 'Fira Code', 'Courier New', monospace;
+            background: none;
+            color: #a7c7d8;
+        }
+
+        .info-card {
+            background-color: #f8f9fa;
+            border-left: 5px solid var(--unab-gold);
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 0 8px 8px 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+        }
+        .info-card.blue { border-left-color: var(--unab-blue); }
+        .info-card p { margin: 0; }
+        .info-card strong {
+            color: var(--unab-blue);
+            display: block;
+            margin-bottom: 8px;
+            font-size: 1.1em;
+        }
+        
+        .motivation-grid {
+            display: flex;
+            gap: 30px;
+            margin-top: 20px;
+        }
+        .motivation-card {
+            flex: 1;
+            background-color: #f8f9fa;
+            border-radius: 12px;
+            padding: 25px;
+            text-align: center;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+        .motivation-card .icon { font-size: 3em; margin-bottom: 15px; }
+        .motivation-card .role-icon { color: var(--unab-gold); }
+        .motivation-card .program-icon { color: var(--unab-blue); }
+        .motivation-card h3 {
+            margin-top: 0;
+            margin-bottom: 10px;
+            font-size: 1.4em;
+            color: var(--text-dark);
+        }
+        
+        .navigation {
+            padding: 15px 50px;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #f8f9fa;
+        }
+        .nav-btn {
+            background-color: var(--unab-blue);
+            color: var(--text-light);
+            border: none;
+            padding: 12px 25px;
+            border-radius: 30px;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+            flex-shrink: 0;
+        }
+        .nav-btn:hover { background-color: #004a74; transform: translateY(-2px); }
+        .nav-btn:disabled { background-color: #bdc3c7; color: #7f8c8d; cursor: not-allowed; transform: none; }
+        
+        .progress-bar-container {
+            flex-grow: 1; height: 12px; background-color: #e0e0e0; border-radius: 10px; margin: 0 20px; overflow: hidden;
+        }
+        .progress-bar {
+            height: 100%; width: 0%; background-color: var(--unab-gold); border-radius: 10px; transition: width 0.4s ease-in-out;
+        }
+        
+        .quiz-container { margin-top: 25px; padding: 20px; background-color: #f8f9fa; border-top: 4px solid var(--unab-gold); border-radius: 8px; }
+        .quiz-question { font-weight: bold; margin-bottom: 15px; font-size: 1.1em; color: var(--unab-blue);}
+        .quiz-options label { display: block; margin-bottom: 10px; cursor: pointer; padding: 5px; border-radius: 5px; transition: background-color 0.2s; }
+        .quiz-options label:hover { background-color: #eef1f3; }
+        .quiz-feedback { margin-top: 15px; font-weight: bold; padding: 10px; border-radius: 5px; }
+        .feedback-correct { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb;}
+        .feedback-incorrect { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb;}
+        
+        .qr-code { display: block; margin: 20px auto; border: 6px solid var(--surface-light); border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+    </style>
+</head>
+<body>
+
+    <div class="presentation-container">
+        
+        <!-- Diapositiva 1: Portada -->
+        <div class="slide active">
+             <div class="slide-header">
+                <img src="https://unab.edu.co/wp-content/uploads/2023/09/logo-universidad-unab.png" alt="Logo UNAB" class="unab-logo">
+                <h1 style="font-size: 2.5em;">Taller de Ciencia de Datos</h1>
+                <p style="font-size: 1.3em; color: #555;">Análisis de Letras de Canciones con Python</p>
+                <p style="margin-top: 40px;">
+                    <strong style="color: var(--text-dark);">Presentado por:</strong><br>
+                    <span style="font-size: 1.2em; color: var(--unab-blue);">Dudbil Olvsada Pabon Riaño</span><br>
+                    <span style="font-size: 1em; color: #777;">Coordinador del Programa de Ciencia de Datos UNAB</span>
+                </p>
+            </div>
+        </div>
+        
+        <!-- Diapositiva 2: Motivación -->
+        <div class="slide">
+            <h2><i class="fas fa-rocket"></i>¿Por qué estudiar Ciencia de Datos?</h2>
+            <p style="text-align: center;">Vivimos en la era de la información. Saber usar los datos para tomar decisiones es una de las habilidades más demandadas en el mundo.</p>
+            <div class="motivation-grid">
+                <div class="motivation-card">
+                    <div class="icon role-icon"><i class="fas fa-user-secret"></i></div>
+                    <h3>El Rol del Científico de Datos</h3>
+                    <p>Serás un detective digital que transforma datos en estrategias, predice tendencias y cuenta historias que impulsan el cambio.</p>
+                </div>
+                <div class="motivation-card">
+                    <div class="icon program-icon"><i class="fas fa-university"></i></div>
+                    <h3>El Programa en la UNAB</h3>
+                    <p>Te prepara para este reto en <strong>8 semestres</strong>, dándote las herramientas para ser un líder en la revolución tecnológica.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Diapositiva 3: Configuración -->
+        <div class="slide">
+            <h2><i class="fas fa-cogs"></i>Paso 1: Configuración del Entorno</h2>
+            <div class="slide-content">
+                <div class="text-column">
+                    <p>Preparamos nuestro taller digital instalando las <strong>librerías</strong> y cargando los modelos de IA que nos ayudarán.</p>
+                    <div class="info-card blue">
+                        <p><strong>Librerías Clave:</strong><br>
+                        <code>yt-dlp</code>: Descarga audio.<br>
+                        <code>openai-whisper</code>: Convierte audio a texto.<br>
+                        <code>spacy</code>: Entiende la gramática del texto.</p>
+                    </div>
+                </div>
+                <div class="code-column">
+                    <pre><code># --- INSTALACIONES Y CARGA ---
+print("⚙️ Instalando herramientas...")
+!pip install -q yt-dlp openai-whisper spacy ...
+!python -m spacy download es_core_news_sm -q
+
+# --- IMPORTACIONES ---
+import os, re, glob, whisper, spacy
+import pandas as pd
+import matplotlib.pyplot as plt
+from wordcloud import WordCloud
+
+# --- CARGAR MODELO ---
+nlp = spacy.load("es_core_news_sm")
+print("✅ ¡Todo listo!")</code></pre>
+                </div>
+            </div>
+            <!-- Quiz movido fuera y debajo de las columnas -->
+            <div class="quiz-container" id="quiz1">
+                <p class="quiz-question">Quiz: ¿Para qué sirve la librería <code>openai-whisper</code>?</p>
+                <div class="quiz-options">
+                    <label><input type="radio" name="q1" value="a"> A) Para crear gráficos.</label>
+                    <label><input type="radio" name="q1" value="b"> B) Para convertir audio en texto.</label>
+                </div>
+                <button class="nav-btn" style="background-color: var(--unab-gold);" onclick="checkQuiz('q1', 'b', 'feedback1')">Revisar</button>
+                <div class="quiz-feedback" id="feedback1" style="display:none;"></div>
+            </div>
+        </div>
+
+        <!-- Diapositiva 4: Obtener la Letra -->
+        <div class="slide">
+            <h2><i class="fas fa-microphone-alt"></i>Paso 2: Obtener la Letra</h2>
+            <div class="slide-content">
+                <div class="text-column">
+                    <p>Aquí ocurre la magia. El código toma una URL de YouTube, descarga el <strong>audio</strong> y se lo entrega a <code>Whisper</code> para convertirlo en texto.</p>
+                    <div class="info-card">
+                        <p>Este proceso es el más tardado, ya que la IA debe "escuchar" toda la canción para transcribirla palabra por palabra.</p>
+                    </div>
+                </div>
+                <div class="code-column">
+                    <pre><code># --- URL DE LA CANCIÓN ---
+youtube_url = "https://www.youtube.com/..."
+
+# --- TRANSCRIPCIÓN ---
+model = whisper.load_model("base")
+os.system(f"yt-dlp -q -f 'ba' ...")
+audio_file = glob.glob("audio_temp.*")[0]
+result = model.transcribe(audio_file)
+letra_cancion = result["text"]
+
+os.remove(audio_file) # Limpieza
+print(letra_cancion)</code></pre>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Diapositiva 5: Limpieza y Estadísticas -->
+        <div class="slide">
+            <h2><i class="fas fa-magic-wand-sparkles"></i>Paso 3: Limpieza y Conteo</h2>
+            <div class="slide-content">
+                <div class="text-column">
+                    <p>El texto "crudo" se limpia para un mejor análisis en un proceso llamado <strong>preprocesamiento</strong>. Esto nos permite contar las palabras que realmente importan.</p>
+                     <div class="info-card">
+                        <p><strong>Pasos de Limpieza:</strong><br>
+                        1. <strong>Normalización:</strong> Minúsculas y sin puntuación.<br>
+                        2. <strong>Lematización:</strong> Se busca la raíz de cada palabra.<br>
+                        3. <strong>Stopwords:</strong> Se eliminan palabras comunes (el, la, de).</p>
+                    </div>
+                </div>
+                <div class="code-column">
+                    <pre><code># --- LIMPIEZA Y PROCESAMIENTO ---
+texto_limpio = re.sub(r'[^a-záéíóúüñ\s]', '', letra_cancion.lower())
+doc = nlp(texto_limpio)
+palabras = [token.lemma_ for token in doc 
+            if not token.is_stop and token.is_alpha]
+
+# --- CONTEO ---
+conteo_palabras = pd.Series(palabras).value_counts()
+print(conteo_palabras.head(10))</code></pre>
+                </div>
+            </div>
+             <!-- Quiz movido fuera y debajo de las columnas -->
+            <div class="quiz-container" id="quiz2">
+                <p class="quiz-question">Quiz: ¿Qué hace la "Lematización"?</p>
+                <div class="quiz-options">
+                    <label><input type="radio" name="q2" value="a"> A) Elimina las palabras más largas.</label>
+                    <label><input type="radio" name="q2" value="c"> C) Reduce las palabras a su forma raíz.</label>
+                </div>
+                <button class="nav-btn" style="background-color: var(--unab-gold);" onclick="checkQuiz('q2', 'c', 'feedback2')">Revisar</button>
+                <div class="quiz-feedback" id="feedback2" style="display:none;"></div>
+            </div>
+        </div>
+
+        <!-- Diapositiva 6: Histograma -->
+        <div class="slide">
+            <h2><i class="fas fa-chart-bar"></i>Paso 4: Histograma de Frecuencia</h2>
+             <div class="slide-content">
+                <div class="text-column">
+                    <p>Un <strong>histograma</strong> nos muestra de forma clara cuáles son los términos que más se repiten, dándonos pistas sobre el tema principal de la canción.</p>
+                     <div class="info-card blue">
+                        <p>Esta es una de las visualizaciones más fundamentales en la ciencia de datos para entender la distribución de cualquier tipo de información.</p>
+                    </div>
+                </div>
+                <div class="code-column">
+                    <pre><code># --- GENERACIÓN DEL HISTOGRAMA ---
+fig, ax = plt.subplots(figsize=(10, 6))
+
+conteo_palabras.head(15).sort_values().plot.barh(
+    ax=ax,
+    color='skyblue',
+    title='Histograma de Frecuencia'
+)
+plt.show()</code></pre>
+                </div>
+            </div>
+        </div>
+
+        <!-- Diapositiva 7: Nube de Palabras -->
+        <div class="slide">
+            <h2><i class="fas fa-cloud"></i>Paso 5: Nube de Palabras</h2>
+             <div class="slide-content">
+                <div class="text-column">
+                    <p>La <strong>nube de palabras</strong> es una visualización más artística donde el tamaño de cada palabra es proporcional a su frecuencia.</p>
+                </div>
+                <div class="code-column">
+                    <pre><code># --- GENERACIÓN DE LA NUBE ---
+texto_para_nube = " ".join(palabras)
+
+wordcloud = WordCloud(width=1000, height=600,
+    background_color='white', colormap='viridis'
+).generate(texto_para_nube)
+
+plt.figure(figsize=(10, 6))
+plt.imshow(wordcloud, interpolation='bilinear')
+plt.axis('off')
+plt.show()</code></pre>
+                </div>
+            </div>
+            <!-- Quiz movido fuera y debajo de las columnas -->
+            <div class="quiz-container" id="quiz3">
+                <p class="quiz-question">En una nube de palabras, ¿qué representa el tamaño de cada palabra?</p>
+                <div class="quiz-options">
+                    <label><input type="radio" name="q3" value="a"> A) Su frecuencia (cuántas veces aparece).</label>
+                    <label><input type="radio" name="q3" value="c"> C) El número de letras que tiene.</label>
+                </div>
+                <button class="nav-btn" style="background-color: var(--unab-gold);" onclick="checkQuiz('q3', 'a', 'feedback3')">Revisar</button>
+                <div class="quiz-feedback" id="feedback3" style="display:none;"></div>
+            </div>
+        </div>
+        
+        <!-- Diapositiva 8: Cierre y Llamado a la Acción -->
+        <div class="slide">
+            <h2><i class="fas fa-graduation-cap"></i>¿Quieres ser un Científico de Datos?</h2>
+            <p>Has completado el ciclo de análisis: desde una URL hasta visualizaciones. Esto es solo una pequeña muestra de lo que puedes lograr en el mundo de la Ciencia de Datos.</p>
+            <p style="text-align:center;">¡Explora el futuro y conoce más sobre nuestro programa en la UNAB!</p>
+            <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https://unab.edu.co/programas/ciencia-de-datos/" alt="Código QR para el programa de Ciencia de Datos UNAB" class="qr-code">
+            <p style="text-align:center; font-size: 1.1em; font-weight: 600;">
+                <a href="https://unab.edu.co/programas/ciencia-de-datos/" target="_blank" style="color: var(--unab-blue);">unab.edu.co/programas/ciencia-de-datos/</a>
+            </p>
+        </div>
+
+        <!-- Navegación -->
+        <div class="navigation">
+            <button class="nav-btn" id="prevBtn" onclick="changeSlide(-1)">Anterior</button>
+            <div class="progress-bar-container">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+            <button class="nav-btn" id="nextBtn" onclick="changeSlide(1)">Siguiente</button>
+        </div>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const progressBar = document.getElementById('progressBar');
+
+        function showSlide(n) {
+            slides.forEach((slide, index) => {
+                slide.classList.remove('active');
+                if (index === n) { slide.classList.add('active'); }
+            });
+            const progress = (n / (slides.length - 1)) * 100;
+            progressBar.style.width = `${progress}%`;
+            prevBtn.disabled = n === 0;
+            nextBtn.disabled = n === slides.length - 1;
+        }
+
+        function changeSlide(direction) {
+            const newIndex = currentSlide + direction;
+            if (newIndex >= 0 && newIndex < slides.length) {
+                currentSlide = newIndex;
+                showSlide(currentSlide);
+            }
+        }
+
+        function checkQuiz(questionName, correctAnswer, feedbackId) {
+            const feedbackEl = document.getElementById(feedbackId);
+            const selectedOption = document.querySelector(`input[name="${questionName}"]:checked`);
+            if (!selectedOption) {
+                feedbackEl.textContent = "Por favor, selecciona una opción.";
+                feedbackEl.className = 'quiz-feedback feedback-incorrect';
+                feedbackEl.style.display = 'block';
+                return;
+            }
+            if (selectedOption.value === correctAnswer) {
+                feedbackEl.textContent = '¡Correcto! Excelente trabajo.';
+                feedbackEl.className = 'quiz-feedback feedback-correct';
+            } else {
+                feedbackEl.textContent = 'No es correcto. ¡Inténtalo de nuevo!';
+                feedbackEl.className = 'quiz-feedback feedback-incorrect';
+            }
+            feedbackEl.style.display = 'block';
+        }
+
+        document.addEventListener('DOMContentLoaded', () => { showSlide(currentSlide); });
+    </script>
+</body>
+</html>
+
