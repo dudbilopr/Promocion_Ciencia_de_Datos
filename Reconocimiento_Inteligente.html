@@ -14,7 +14,7 @@
     <!-- Chart.js para gráficos de ciencia de datos -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
-    <!-- ml5.js: Cambiamos a CDNJS (Cloudflare) fijando la versión para descargas mucho más rápidas y estables -->
+    <!-- ml5.js: Usamos la versión 0.12.2 estable y comprobada -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ml5/0.12.2/ml5.min.js"></script>
 
     <style>
@@ -73,49 +73,67 @@
 
 <body class="min-h-screen flex flex-col">
 
-    <!-- Header Principal -->
+    <!-- Header Principal (Gamificado) -->
     <header class="bg-gradient-to-r from-indigo-900 to-slate-900 text-white p-4 shadow-xl z-20 border-b border-indigo-500/30 sticky top-0 backdrop-blur-md">
         <div class="container mx-auto flex flex-col md:flex-row items-center justify-between gap-3 text-center md:text-left">
             <div>
                 <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-cyan-300">
-                    <i class="fa-solid fa-brain text-indigo-400 mr-2"></i> Laboratorio de IA
+                    <i class="fa-solid fa-rocket text-indigo-400 mr-2"></i> Reto Data Science
                 </h1>
-                <p class="text-xs sm:text-sm text-indigo-200 mt-1 opacity-90">Entrena redes neuronales directo en tu navegador.</p>
+                <p class="text-xs sm:text-sm text-indigo-200 mt-1 opacity-90">Entrena tu propia Inteligencia Artificial en el navegador.</p>
             </div>
             
-            <!-- Badge de Estado Mejorado con feedback sobre la descarga -->
-            <div class="flex flex-col items-center md:items-end">
+            <!-- Badge de Estado Mejorado con feedback -->
+            <div class="flex flex-col items-center md:items-end w-full md:w-auto">
                 <div id="status-badge" class="bg-yellow-500/20 text-yellow-300 border border-yellow-500/30 px-4 py-2 rounded-full text-xs sm:text-sm font-bold flex items-center shadow-lg w-full md:w-auto justify-center transition-all duration-300 relative overflow-hidden">
                     <i class="fa-solid fa-cloud-arrow-down fa-bounce mr-2"></i> 
-                    <span id="status-text">Iniciando Motor...</span>
+                    <span id="status-text">Conectando...</span>
                     <!-- Barra de progreso simulada para UX -->
-                    <div id="download-progress" class="absolute bottom-0 left-0 h-1 bg-yellow-400 w-0 transition-all duration-1000"></div>
+                    <div id="download-progress" class="absolute bottom-0 left-0 h-1 bg-yellow-400 w-0 transition-all duration-300"></div>
                 </div>
-                <span id="status-hint" class="text-[10px] text-slate-400 mt-1 hidden">El navegador guardará esto en caché para la próxima vez.</span>
+                <span id="status-hint" class="text-[10px] text-slate-400 mt-1 hidden">Puede tardar unos segundos según tu internet.</span>
             </div>
         </div>
     </header>
 
     <main class="container mx-auto p-4 flex-grow flex flex-col gap-6">
 
-        <!-- Panel Pedagógico (Humano y Explicativo) -->
-        <section class="glass-panel rounded-2xl p-5 border-l-4 border-indigo-500 relative overflow-hidden">
-            <h3 class="text-lg font-bold text-white mb-3 relative z-10"><i class="fa-solid fa-map-location-dot text-indigo-400 mr-2"></i> Tu misión en 3 sencillos pasos:</h3>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-slate-300 relative z-10">
-                <div class="bg-slate-800/80 p-4 rounded-xl border border-slate-700 hover:border-indigo-500 transition-colors">
-                    <strong class="text-indigo-400 block mb-1 text-base"><span class="bg-indigo-600 text-white px-2 py-0.5 rounded-full text-xs mr-2">1</span> Enséñale (Recolecta)</strong> 
-                    Usa tu cámara. Haz una cara feliz y presiona "Capturar" 30 veces. Luego haz una cara triste y haz lo mismo. ¡Enséñale varias cosas!
+        <!-- Diagrama Educativo (Cómo funciona) -->
+        <section class="glass-panel rounded-2xl shadow-lg p-4 flex-shrink-0 bg-gradient-to-br from-slate-800 to-indigo-900/50 border-l-4 border-indigo-500">
+            <h2 class="text-sm font-bold mb-3 text-indigo-300 uppercase tracking-wider"><i class="fa-solid fa-microscope mr-2"></i> ¿Cómo funciona el Algoritmo?</h2>
+            <div class="flex flex-col md:flex-row items-center justify-between gap-2 text-center text-xs">
+                <div class="p-2 rounded-xl flex-1 border border-slate-600 bg-slate-800/80 shadow-sm w-full">
+                    <i class="fa-solid fa-image text-2xl text-indigo-400 mb-1"></i><br>
+                    <strong class="text-slate-200">1. Entrada</strong><br>
+                    <span class="text-slate-400 text-[10px]">Píxeles de tu cámara</span>
                 </div>
-                <div class="bg-slate-800/80 p-4 rounded-xl border border-slate-700 hover:border-cyan-500 transition-colors">
-                    <strong class="text-cyan-400 block mb-1 text-base"><span class="bg-cyan-600 text-white px-2 py-0.5 rounded-full text-xs mr-2">2</span> Crea el Cerebro (Entrena)</strong> 
-                    Presiona "Entrenar". Verás una gráfica de cómo la IA comete errores y aprende de ellos. Cuando la línea baja, ¡se vuelve más lista!
+                <i class="fa-solid fa-chevron-right text-indigo-500 hidden md:block"></i>
+                <i class="fa-solid fa-chevron-down text-indigo-500 md:hidden"></i>
+                <div class="p-2 rounded-xl flex-1 border border-slate-600 bg-slate-800/80 shadow-sm w-full">
+                    <i class="fa-solid fa-network-wired text-2xl text-cyan-400 mb-1"></i><br>
+                    <strong class="text-slate-200">2. Red Neuronal</strong><br>
+                    <span class="text-slate-400 text-[10px]">MobileNet extrae patrones</span>
                 </div>
-                <div class="bg-slate-800/80 p-4 rounded-xl border border-slate-700 hover:border-emerald-500 transition-colors">
-                    <strong class="text-emerald-400 block mb-1 text-base"><span class="bg-emerald-600 text-white px-2 py-0.5 rounded-full text-xs mr-2">3</span> El Reto (Prueba)</strong> 
-                    Pruébala en vivo. Si se equivoca con algo, significa que le faltaron ejemplos de eso (se llama <b class="text-white">Sesgo</b>). ¡Sube más fotos y re-entrena!
+                <i class="fa-solid fa-chevron-right text-indigo-500 hidden md:block"></i>
+                <i class="fa-solid fa-chevron-down text-indigo-500 md:hidden"></i>
+                <div class="p-2 rounded-xl flex-1 border border-slate-600 bg-slate-800/80 shadow-sm w-full">
+                    <i class="fa-brands fa-js text-2xl text-yellow-400 mb-1"></i><br>
+                    <strong class="text-slate-200">3. Entrenamiento</strong><br>
+                    <span class="text-slate-400 text-[10px]">Ajusta pesos matemáticos</span>
+                </div>
+                <i class="fa-solid fa-chevron-right text-indigo-500 hidden md:block"></i>
+                <i class="fa-solid fa-chevron-down text-indigo-500 md:hidden"></i>
+                <div class="p-2 rounded-xl flex-1 border border-slate-600 bg-slate-800/80 shadow-sm w-full">
+                    <i class="fa-solid fa-chart-simple text-2xl text-emerald-400 mb-1"></i><br>
+                    <strong class="text-slate-200">4. Salida</strong><br>
+                    <span class="text-slate-400 text-[10px]">Probabilidad (Softmax)</span>
                 </div>
             </div>
-            <i class="fa-solid fa-graduation-cap text-8xl text-indigo-500/10 absolute -right-4 top-4"></i>
+            <div class="mt-3 bg-indigo-900/30 p-2 rounded-lg border border-indigo-500/30">
+                <p class="text-xs text-indigo-200 text-center">
+                    Toma al menos 30 fotos variadas por cada categoría y presiona "Entrenar". ¡Evita el sesgo agregando datos balanceados!
+                </p>
+            </div>
         </section>
 
         <!-- Métricas en Tiempo Real -->
@@ -125,24 +143,24 @@
                     <p class="text-xs text-slate-400 uppercase tracking-wider font-semibold">Total Imágenes</p>
                     <p class="text-3xl font-black text-white font-mono mt-1" id="total-samples-count">0</p>
                 </div>
-                <i class="fa-solid fa-images text-3xl text-indigo-500/50"></i>
+                <i class="fa-solid fa-database text-3xl text-indigo-500/50"></i>
             </div>
             
             <div class="glass-panel p-4 rounded-2xl flex items-center justify-between group">
                 <div>
-                    <p class="text-xs text-slate-400 uppercase tracking-wider font-semibold">Tiempo Inferencia</p>
+                    <p class="text-xs text-slate-400 uppercase tracking-wider font-semibold">Inferencia (Velocidad)</p>
                     <p class="text-2xl font-black text-cyan-400 font-mono mt-1"><span id="inference-time">--</span><span class="text-sm text-cyan-600 ml-1">ms</span></p>
                 </div>
-                <i class="fa-solid fa-stopwatch text-3xl text-cyan-500/50 group-hover:rotate-12 transition-transform"></i>
+                <i class="fa-solid fa-bolt text-3xl text-cyan-500/50 group-hover:text-yellow-400 transition-colors"></i>
             </div>
 
             <div class="glass-panel p-4 rounded-2xl col-span-1 md:col-span-2 flex flex-col justify-center relative overflow-hidden">
                 <div class="flex justify-between items-end mb-2 z-10">
                     <div>
-                        <h4 class="text-sm font-bold text-slate-200"><i class="fa-solid fa-scale-balanced text-orange-400 mr-1"></i> Equilibrio de los Datos</h4>
-                        <p class="text-[10px] text-slate-400 leading-tight">Evita el sesgo: trata de que todas las categorías tengan imágenes parecidas.</p>
+                        <h4 class="text-sm font-bold text-slate-200"><i class="fa-solid fa-scale-balanced text-orange-400 mr-1"></i> Salud del Dataset</h4>
+                        <p class="text-[10px] text-slate-400 leading-tight">Mantén las categorías con una cantidad similar de imágenes.</p>
                     </div>
-                    <span id="data-health-badge" class="text-[10px] font-bold bg-slate-700 text-slate-300 px-2 py-1 rounded-md shadow">Analizando...</span>
+                    <span id="data-health-badge" class="text-[10px] font-bold bg-slate-700 text-slate-300 px-2 py-1 rounded-md shadow">Esperando datos...</span>
                 </div>
                 <div class="w-full bg-slate-800 rounded-full h-2.5 shadow-inner z-10">
                     <div id="data-balance-bar" class="bg-slate-500 h-2.5 rounded-full transition-all duration-1000 w-0"></div>
@@ -158,29 +176,29 @@
                 <div class="glass-panel p-4 rounded-2xl flex flex-col items-center relative overflow-hidden group">
                     <h2 class="text-sm uppercase tracking-wider font-bold text-slate-300 w-full mb-3 flex items-center justify-between">
                         <span><i class="fa-solid fa-camera mr-2 text-indigo-400"></i> Entrada Visual</span>
-                        <span class="text-[10px] bg-slate-800 px-2 py-1 rounded text-slate-400 font-mono border border-slate-700">Tensor 224x224px</span>
+                        <span class="text-[10px] bg-slate-800 px-2 py-1 rounded text-slate-400 font-mono border border-slate-700">224x224px RGB</span>
                     </h2>
                     
                     <div id="video-container" class="relative w-full rounded-xl overflow-hidden shadow-[0_0_15px_rgba(0,0,0,0.5)] border border-slate-600 bg-black aspect-[4/3] flex items-center justify-center">
-                        <span id="camera-loading" class="absolute text-slate-400 text-sm flex flex-col items-center">
+                        <span id="camera-loading" class="absolute text-slate-400 text-sm flex flex-col items-center text-center p-4">
                             <i class="fa-solid fa-video text-2xl mb-2 animate-pulse"></i> Activando cámara...
+                            <br><span class="text-[10px] mt-2">Acepta los permisos de tu navegador.</span>
                         </span>
                         <video id="video" autoplay playsinline muted class="absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-500 transform scale-x-[-1]"></video>
-                        <!-- Efecto de escaneo cuando predice -->
                         <div id="scan-effect" class="hidden absolute top-0 left-0 w-full h-8 bg-gradient-to-b from-transparent to-cyan-500/30 scan-line border-b border-cyan-400/50"></div>
                     </div>
                 </div>
 
                 <div class="glass-panel p-4 rounded-2xl flex-grow">
                     <h2 class="text-sm uppercase tracking-wider font-bold text-slate-300 mb-3 flex justify-between">
-                        <span><i class="fa-solid fa-chart-bar mr-2 text-cyan-400"></i> Softmax (Salida)</span>
+                        <span><i class="fa-solid fa-chart-bar mr-2 text-cyan-400"></i> Probabilidades</span>
                     </h2>
                     <div id="prediction-container" class="flex flex-col items-center justify-center h-40 text-center opacity-50">
                         <i class="fa-solid fa-eye-slash text-4xl text-slate-600 mb-2"></i>
-                        <p class="text-sm text-slate-400">Entrena el modelo primero<br>para ver cómo piensa.</p>
+                        <p class="text-xs text-slate-400">Entrena el modelo primero<br>para ver los resultados aquí.</p>
                     </div>
                     <div id="confidence-bars" class="space-y-2 hidden">
-                        <!-- Generado por JS -->
+                        <!-- Barras de progreso generadas por JS -->
                     </div>
                 </div>
             </div>
@@ -189,7 +207,7 @@
             <div class="w-full lg:w-2/3 glass-panel p-4 sm:p-6 rounded-2xl flex flex-col h-[650px]">
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-2">
                     <h2 class="text-sm sm:text-base uppercase tracking-wider font-bold text-slate-300">
-                        <i class="fa-solid fa-database mr-2 text-indigo-400"></i> Datos de Entrenamiento
+                        <i class="fa-solid fa-layer-group mr-2 text-indigo-400"></i> Categorías (Clases)
                     </h2>
                     <button onclick="addNewClass()" class="w-full sm:w-auto bg-indigo-600/20 hover:bg-indigo-600/40 text-indigo-300 border border-indigo-500/50 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors">
                         <i class="fa-solid fa-plus mr-1"></i> Añadir Categoría
@@ -197,7 +215,7 @@
                 </div>
                 
                 <div id="classes-container" class="grid grid-cols-cards gap-4 overflow-y-auto pr-2 pb-4 flex-grow content-start">
-                    <!-- Las clases se generan dinámicamente con JS -->
+                    <!-- Generado dinámicamente con JS -->
                 </div>
 
                 <div class="mt-4 pt-4 border-t border-slate-700 grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -210,7 +228,7 @@
                         </button>
                         
                         <button id="download-btn" onclick="downloadModel()" class="hidden w-full bg-slate-800 hover:bg-slate-700 border border-emerald-500/50 text-emerald-400 font-bold py-2 px-4 rounded-xl transition-all justify-center items-center gap-2 text-sm shadow-[0_0_10px_rgba(16,185,129,0.2)]">
-                            <i class="fa-solid fa-download"></i> Guardar Cerebro (Descargar)
+                            <i class="fa-solid fa-download"></i> Descargar IA Entrenada
                         </button>
                     </div>
 
@@ -238,20 +256,20 @@
         let isPredicting = false;
         let totalExamples = 0;
         let lastPredictionTime = 0;
-        
         let lossData = { labels: [], data: [] };
 
-        // Dataset de prueba ampliado para el reto
+        // Categorías de Data Science para el reto
         let classesData = [
-            { id: 'class_0', name: '😁 Cara Feliz', count: 0, color: 'text-green-400', bg: 'bg-green-500', icon: 'fa-face-smile' },
-            { id: 'class_1', name: '😲 Cara Sorprendida', count: 0, color: 'text-yellow-400', bg: 'bg-yellow-500', icon: 'fa-face-surprise' },
-            { id: 'class_2', name: '✌️ Seña de Paz', count: 0, color: 'text-purple-400', bg: 'bg-purple-500', icon: 'fa-hand-peace' },
-            { id: 'class_3', name: '⭕ Forma Círculo', count: 0, color: 'text-orange-400', bg: 'bg-orange-500', icon: 'fa-circle' },
-            { id: 'class_4', name: '⬛ Fondo (Nada)', count: 0, color: 'text-slate-400', bg: 'bg-slate-500', icon: 'fa-image' }
+            { id: 'class_0', name: '😁 Felicidad', count: 0, color: 'text-green-400', bg: 'bg-green-500', icon: 'fa-face-smile' },
+            { id: 'class_1', name: '😲 Sorpresa', count: 0, color: 'text-yellow-400', bg: 'bg-yellow-500', icon: 'fa-face-surprise' },
+            { id: 'class_2', name: '✌️ Paz (Mano)', count: 0, color: 'text-purple-400', bg: 'bg-purple-500', icon: 'fa-hand-peace' },
+            { id: 'class_3', name: '⭕ Círculo', count: 0, color: 'text-orange-400', bg: 'bg-orange-500', icon: 'fa-circle' },
+            { id: 'class_4', name: '📐 Triángulo', count: 0, color: 'text-pink-400', bg: 'bg-pink-500', icon: 'fa-play' },
+            { id: 'class_5', name: '⬛ Fondo Vacío', count: 0, color: 'text-slate-400', bg: 'bg-slate-500', icon: 'fa-border-none' }
         ];
         let classCounter = classesData.length;
 
-        document.addEventListener('DOMContentLoaded', () => {
+        //        document.addEventListener('DOMContentLoaded', () => {
             initChart();
             renderClasses();
             initCamera();
@@ -293,12 +311,10 @@
             });
         }
 
-        // --- STREAMING_CHUNK: Configurando acceso a cámara y descarga de MobileNet ---
-        
-        async function initCamera() {
+        //        async function initCamera() {
             video = document.getElementById('video');
             try {
-                // Configuramos la cámara ideal para modelos ML (cuadrada y baja res)
+                // Resolución baja e ideal para redes neuronales móviles
                 const stream = await navigator.mediaDevices.getUserMedia({ 
                     video: { facingMode: "user", width: 224, height: 224 } 
                 });
@@ -310,58 +326,69 @@
                     initML5(); 
                 };
             } catch (err) {
-                console.error("Cámara denegada o no disponible:", err);
-                document.getElementById('camera-loading').innerHTML = `<i class="fa-solid fa-triangle-exclamation text-red-400 text-2xl mb-2"></i> Requiere cámara.<br><span class="text-xs">Usa HTTPS o IP Local (Localhost).</span>`;
-                document.getElementById('camera-loading').classList.add("text-red-400");
-                initML5(); // Aún así iniciamos ml5 para permitir uso sin cámara a futuro
+                console.error("Error de cámara:", err);
+                document.getElementById('camera-loading').innerHTML = `<i class="fa-solid fa-triangle-exclamation text-red-400 text-2xl mb-2"></i> Error de Cámara.<br><span class="text-xs">Verifica permisos o usa HTTPS.</span>`;
+                initML5(); // Intentamos iniciar la IA de todos modos
             }
         }
 
         function initML5() {
-            // UX Tweak: Explicar por qué demora
-            document.getElementById('status-text').innerText = "Descargando Red (20MB)... Solo la 1ra vez";
-            document.getElementById('status-badge').className = "bg-yellow-500/20 text-yellow-300 border border-yellow-500/30 px-4 py-2 rounded-full text-xs font-bold flex items-center shadow-[0_0_15px_rgba(234,179,8,0.3)] w-full md:w-auto justify-center relative overflow-hidden";
+            document.getElementById('status-text').innerText = "Descargando IA base...";
             document.getElementById('status-hint').classList.remove('hidden');
             
-            // Simulador de progreso para dar paz mental al usuario
+            // Animación visual suave para la barra de carga
             let fakeProgress = 0;
             const progressInterval = setInterval(() => {
-                fakeProgress += Math.random() * 5;
-                if(fakeProgress > 90) clearInterval(progressInterval);
-                document.getElementById('download-progress').style.width = `${Math.min(fakeProgress, 95)}%`;
-            }, 500);
+                fakeProgress += 2;
+                if(fakeProgress > 95) clearInterval(progressInterval);
+                document.getElementById('download-progress').style.width = `${fakeProgress}%`;
+            }, 100);
 
-            // OPTIMIZACIÓN: Pasamos opciones para que el entrenamiento posterior sea más ágil
-            const options = {
-                epochs: 25, // Número balanceado de iteraciones
-                batchSize: 0.2 // Tamaño de lote dinámico
-            };
+            // Timeout de seguridad: Si no carga en 15 segundos, mostrar error de red.
+            const timeoutCheck = setTimeout(() => {
+                if(!isModelReady) {
+                    clearInterval(progressInterval);
+                    document.getElementById('status-text').innerText = "Fallo de red (Timeout)";
+                    document.getElementById('status-hint').innerText = "Recarga la página o revisa tu internet.";
+                    const badge = document.getElementById('status-badge');
+                    badge.classList.remove('text-yellow-300', 'bg-yellow-500/20', 'border-yellow-500/30');
+                    badge.classList.add('text-red-400', 'bg-red-500/20', 'border-red-500/30');
+                }
+            }, 15000);
 
-            featureExtractor = ml5.featureExtractor('MobileNet', options, () => {
-                clearInterval(progressInterval);
-                document.getElementById('download-progress').style.width = `100%`;
-                modelLoaded();
-            });
+            try {
+                // FIX: Eliminamos el objeto de "options" defectuoso que rompía la inicialización internamente.
+                // Usamos la configuración estándar y probada de ml5.js.
+                featureExtractor = ml5.featureExtractor('MobileNet', () => {
+                    clearTimeout(timeoutCheck);
+                    clearInterval(progressInterval);
+                    document.getElementById('download-progress').style.width = `100%`;
+                    modelLoaded();
+                });
+            } catch (e) {
+                console.error("Error crítico inicializando ml5:", e);
+                clearTimeout(timeoutCheck);
+                document.getElementById('status-text').innerText = "Error cargando la IA";
+            }
         }
 
         function modelLoaded() {
+            // Conecta la cámara con el extractor de características
             classifier = featureExtractor.classification(video, videoReady);
         }
 
         function videoReady() {
             isModelReady = true;
-            document.getElementById('status-text').innerText = "¡IA Lista! Agrega fotos a las categorías.";
+            document.getElementById('status-text').innerText = "Modelo Listo";
             document.getElementById('status-badge').innerHTML = `<i class="fa-solid fa-check-circle mr-2"></i> ${document.getElementById('status-text').innerText}`;
-            document.getElementById('status-badge').className = "bg-emerald-500/20 text-emerald-400 border border-emerald-500/50 px-4 py-2 rounded-full text-xs font-bold flex items-center shadow-[0_0_15px_rgba(16,185,129,0.3)] w-full md:w-auto justify-center transition-all duration-300";
+            document.getElementById('status-badge').className = "bg-emerald-500/20 text-emerald-400 border border-emerald-500/50 px-4 py-2 rounded-full text-xs sm:text-sm font-bold flex items-center shadow-[0_0_15px_rgba(16,185,129,0.3)] w-full md:w-auto justify-center transition-all duration-300";
             document.getElementById('status-hint').classList.add('hidden');
             
-            // Habilitar botones
+            // Re-renderizamos para habilitar los botones
             renderClasses();
         }
 
-        // --- STREAMING_CHUNK: Manejo de interfaz de usuario y recolección de datos ---
-
-        function renderClasses() {
+        //        function renderClasses() {
             const container = document.getElementById('classes-container');
             container.innerHTML = '';
             
@@ -393,7 +420,7 @@
         }
 
         function addNewClass() {
-            const name = prompt("Escribe qué quieres que reconozca (Ej: 'Gato', 'Enojado', 'Mano Abierta'):");
+            const name = prompt("Escribe una nueva categoría (Ej: 'Tristeza', 'Mano Cerrada'):");
             if (name && name.trim() !== '') {
                 const newId = `class_${classCounter++}`;
                 classesData.push({ 
@@ -409,10 +436,10 @@
             
             const cls = classesData.find(c => c.id === classId);
             if (cls) {
-                // ml5.js: Tomar la foto de la cámara y asignarle una etiqueta matemática
+                // ml5.js: Tomar el frame actual y guardarlo bajo la etiqueta
                 classifier.addImage(cls.name);
                 
-                // Efecto visual flash para saber que tomó la foto
+                // Efecto visual flash
                 const v = document.getElementById('video-container');
                 v.classList.add('ring-4', 'ring-white');
                 setTimeout(() => v.classList.remove('ring-4', 'ring-white'), 100);
@@ -426,40 +453,37 @@
             }
         }
 
-        // --- STREAMING_CHUNK: Calculando métricas de Sesgo y Salud del Dataset ---
-
-        function updateDataMetricsUI() {
+        //        function updateDataMetricsUI() {
             if (totalExamples === 0) return;
             
             let counts = classesData.map(c => c.count);
             let maxCount = Math.max(...counts);
-            let minCount = Math.min(...counts.filter(c=>c>0)); // Min entre las que tienen fotos
+            let minCount = Math.min(...counts.filter(c=>c>0)); 
             let activeClasses = counts.filter(c => c > 0).length;
             
             const badge = document.getElementById('data-health-badge');
             const bar = document.getElementById('data-balance-bar');
             
-            // Análisis Pedagógico
             if (activeClasses < 2) {
-                badge.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> Necesita Contrastes';
-                badge.className = "text-[10px] font-bold bg-red-900/50 text-red-400 border border-red-800/50 px-2 py-1 rounded-md shadow";
+                badge.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> Necesita Contraste';
+                badge.className = "text-[10px] font-bold bg-red-900/50 text-red-400 px-2 py-1 rounded-md shadow";
                 bar.style.width = "15%";
-                bar.className = "bg-red-500 h-2.5 rounded-full transition-all duration-1000 shadow-[0_0_8px_rgba(239,68,68,0.6)]";
+                bar.className = "bg-red-500 h-2.5 rounded-full transition-all duration-1000";
             } else if (maxCount - minCount > 15) {
-                badge.innerHTML = '<i class="fa-solid fa-scale-unbalanced"></i> Hay Sesgo (Bias)';
-                badge.className = "text-[10px] font-bold bg-orange-900/50 text-orange-400 border border-orange-800/50 px-2 py-1 rounded-md shadow";
+                badge.innerHTML = '<i class="fa-solid fa-scale-unbalanced"></i> Dataset Sesgado';
+                badge.className = "text-[10px] font-bold bg-orange-900/50 text-orange-400 px-2 py-1 rounded-md shadow";
                 bar.style.width = "45%";
-                bar.className = "bg-orange-500 h-2.5 rounded-full transition-all duration-1000 shadow-[0_0_8px_rgba(249,115,22,0.6)]";
+                bar.className = "bg-orange-500 h-2.5 rounded-full transition-all duration-1000";
             } else if (minCount >= 20 && (maxCount - minCount <= 10)) {
-                badge.innerHTML = '<i class="fa-solid fa-check-double"></i> Dataset Perfecto';
-                badge.className = "text-[10px] font-bold bg-emerald-900/50 text-emerald-400 border border-emerald-800/50 px-2 py-1 rounded-md shadow";
+                badge.innerHTML = '<i class="fa-solid fa-check-double"></i> Dataset Excelente';
+                badge.className = "text-[10px] font-bold bg-emerald-900/50 text-emerald-400 px-2 py-1 rounded-md shadow";
                 bar.style.width = "100%";
-                bar.className = "bg-emerald-500 h-2.5 rounded-full transition-all duration-1000 shadow-[0_0_12px_rgba(16,185,129,0.8)]";
+                bar.className = "bg-emerald-500 h-2.5 rounded-full transition-all duration-1000";
             } else {
-                badge.innerHTML = '<i class="fa-solid fa-chart-line"></i> Aceptable...';
-                badge.className = "text-[10px] font-bold bg-blue-900/50 text-blue-400 border border-blue-800/50 px-2 py-1 rounded-md shadow";
+                badge.innerHTML = '<i class="fa-solid fa-chart-line"></i> Aceptable';
+                badge.className = "text-[10px] font-bold bg-blue-900/50 text-blue-400 px-2 py-1 rounded-md shadow";
                 bar.style.width = "70%";
-                bar.className = "bg-blue-500 h-2.5 rounded-full transition-all duration-1000 shadow-[0_0_8px_rgba(59,130,246,0.6)]";
+                bar.className = "bg-blue-500 h-2.5 rounded-full transition-all duration-1000";
             }
         }
 
@@ -469,9 +493,7 @@
             if (activeClasses >= 2) btn.disabled = false;
         }
 
-        // --- STREAMING_CHUNK: Lógica de Entrenamiento (Backpropagation) y Predicción Continua ---
-
-        function startTraining() {
+        //        function startTraining() {
             if (isTraining) return;
             isTraining = true;
             isPredicting = false;
@@ -482,21 +504,26 @@
             
             const btn = document.getElementById('train-btn');
             btn.disabled = true;
-            document.getElementById('train-btn-text').innerText = "Ajustando Pesos (Entrenando)...";
+            document.getElementById('train-btn-text').innerText = "Entrenando (Backpropagation)...";
             document.getElementById('scan-effect').classList.remove('hidden');
 
-            document.getElementById('status-badge').innerHTML = `<i class="fa-solid fa-microchip fa-spin mr-2"></i> Procesando Tensores...`;
-            document.getElementById('status-badge').className = "bg-blue-500/20 text-blue-400 border border-blue-500/50 px-4 py-2 rounded-full text-xs font-bold flex items-center shadow-[0_0_15px_rgba(59,130,246,0.5)]";
+            document.getElementById('status-badge').innerHTML = `<i class="fa-solid fa-microchip fa-spin mr-2"></i> Procesando Red...`;
+            document.getElementById('status-badge').className = "bg-blue-500/20 text-blue-400 border border-blue-500/50 px-4 py-2 rounded-full text-xs sm:text-sm font-bold flex items-center shadow-[0_0_15px_rgba(59,130,246,0.5)]";
 
-            // Iniciamos el entrenamiento del modelo
-            classifier.train(whileTraining);
+            try {
+                classifier.train(whileTraining);
+            } catch (error) {
+                console.error("Error al iniciar entrenamiento:", error);
+                alert("Ocurrió un error. Asegúrate de haber capturado fotos.");
+                isTraining = false;
+            }
         }
 
         function whileTraining(loss) {
             if (loss === null) {
                 trainingComplete();
             } else {
-                // Actualiza gráfica Chart.js en tiempo real
+                // Actualiza gráfica Chart.js
                 document.getElementById('loss-value').innerText = loss.toFixed(4);
                 lossData.labels.push('');
                 lossData.data.push(loss);
@@ -504,7 +531,6 @@
                 lossChart.data.datasets[0].data = lossData.data;
                 lossChart.update();
                 
-                // Simula el avance en la UI del botón
                 const progress = Math.min(100, lossData.data.length * 4); 
                 document.getElementById('train-progress-bg').style.width = `${progress}%`;
             }
@@ -542,29 +568,22 @@
         function gotResults(err, results) {
             if (err) { console.error(err); return; }
             
-            // Calculamos el tiempo que tardó en inferir la foto actual
             const now = performance.now();
             const inferenceMs = (now - lastPredictionTime).toFixed(0);
             document.getElementById('inference-time').innerText = inferenceMs;
 
             renderConfidenceBars(results);
 
-            // Bucle constante (damos un ligero retraso de 50ms para no quemar la batería del celular)
+            // Bucle constante de inferencia (50ms para no freír el CPU del móvil)
             setTimeout(() => {
-                if (isPredicting) {
-                    lastPredictionTime = performance.now();
-                    classifier.classify(gotResults);
-                }
+                if (isPredicting) classifyFrame();
             }, 50);
         }
-
-        // --- STREAMING_CHUNK: Renderizado de la salida matemática (Softmax) y Descarga ---
 
         function renderConfidenceBars(results) {
             const container = document.getElementById('confidence-bars');
             container.innerHTML = '';
             
-            // Tomamos los 4 resultados más probables
             const topResults = results.slice(0, 4);
             
             topResults.forEach((res, index) => {
@@ -572,7 +591,6 @@
                 const cls = classesData.find(c => c.name === res.label);
                 const bgClass = cls ? cls.bg : 'bg-indigo-500';
                 
-                // Efecto visual: la opción ganadora brilla más
                 const isWinner = index === 0 && res.confidence > 0.6;
                 const opacity = isWinner ? 'opacity-100' : 'opacity-50';
                 const textColor = isWinner ? 'text-white font-bold' : 'text-slate-400';
@@ -594,8 +612,7 @@
 
         function downloadModel() {
             if (classifier && isModelReady) {
-                document.getElementById('status-badge').innerHTML = `<i class="fa-solid fa-box-archive mr-2"></i> Guardando Archivos...`;
-                // ml5.js empaqueta los tensores y descarga model.json + weights.bin
+                document.getElementById('status-badge').innerHTML = `<i class="fa-solid fa-box-archive mr-2"></i> Descargando .json y .bin`;
                 classifier.save(); 
                 setTimeout(() => {
                     document.getElementById('status-badge').innerHTML = `<i class="fa-solid fa-brain mr-2"></i> Inteligencia Activa`;
