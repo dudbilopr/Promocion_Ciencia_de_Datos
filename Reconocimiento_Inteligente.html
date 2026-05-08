@@ -14,8 +14,8 @@
     <!-- Chart.js para gráficos de ciencia de datos -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
-    <!-- ml5.js: Usamos la versión 0.12.2 estable y comprobada -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/ml5/0.12.2/ml5.min.js"></script>
+    <!-- ml5.js: Usamos la fuente oficial 'unpkg' que garantiza la disponibilidad de la versión 0.12.2 -->
+    <script src="https://unpkg.com/ml5@0.12.2/dist/ml5.min.js"></script>
 
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Fira+Code:wght@400;600&display=swap');
@@ -324,16 +324,32 @@
                     video.play();
                     video.style.opacity = "1";
                     document.getElementById('camera-loading').style.display = 'none';
-                    initML5(); 
+                    // Pequeño retraso para asegurar que la librería ml5 esté lista en memoria
+                    setTimeout(initML5, 500); 
                 };
             } catch (err) {
                 console.error("Error de cámara:", err);
                 document.getElementById('camera-loading').innerHTML = `<i class="fa-solid fa-triangle-exclamation text-red-400 text-2xl mb-2"></i> Error de Cámara.<br><span class="text-xs">Verifica permisos o usa HTTPS.</span>`;
-                initML5(); // Intentamos iniciar la IA de todos modos
+                // Intentamos iniciar la IA de todos modos (por si van a subir imágenes en un futuro)
+                setTimeout(initML5, 500);
             }
         }
 
         function initML5() {
+            // Validación de seguridad: Verifica si el CDN cargó exitosamente el archivo
+            if (typeof ml5 === 'undefined') {
+                console.error("Error fatal: La librería ml5.js no se pudo descargar del servidor.");
+                document.getElementById('status-text').innerText = "Librería IA Bloqueada";
+                document.getElementById('status-hint').innerText = "Revisa tu internet, VPN o desactiva tu AdBlocker.";
+                document.getElementById('status-hint').classList.remove('hidden');
+                
+                const badge = document.getElementById('status-badge');
+                badge.classList.remove('text-yellow-300', 'bg-yellow-500/20', 'border-yellow-500/30');
+                badge.classList.add('text-red-400', 'bg-red-900/50', 'border-red-500/50');
+                badge.innerHTML = `<i class="fa-solid fa-circle-xmark mr-2"></i> Fallo de Red`;
+                return; // Detiene la ejecución para evitar el ReferenceError
+            }
+
             document.getElementById('status-text').innerText = "Descargando IA base...";
             document.getElementById('status-hint').classList.remove('hidden');
             
