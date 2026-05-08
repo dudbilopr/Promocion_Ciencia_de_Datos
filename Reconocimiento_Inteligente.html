@@ -218,7 +218,7 @@
                     <!-- Generado dinámicamente con JS -->
                 </div>
 
-                <div class="mt-4 pt-4 border-t border-slate-700 grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="mt-4 pt-4 border-t border-slate-700 grid grid-cols-1 lg:grid-cols-3 gap-4">
                     
                     <div class="flex flex-col justify-center gap-3">
                         <button id="train-btn" onclick="startTraining()" disabled class="w-full bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-500 hover:to-blue-500 disabled:from-slate-800 disabled:to-slate-800 disabled:text-slate-500 disabled:border-slate-700 border border-transparent disabled:cursor-not-allowed text-white font-bold py-4 px-4 rounded-xl shadow-lg transition-all flex justify-center items-center gap-3 text-lg relative overflow-hidden group">
@@ -232,11 +232,24 @@
                         </button>
                     </div>
 
+                    <!-- Gráfica de Loss -->
                     <div class="bg-slate-900 rounded-xl p-2 border border-slate-700 h-32 relative flex flex-col justify-between overflow-hidden group">
                         <span class="absolute top-2 left-3 text-[10px] text-slate-400 font-mono z-10 bg-slate-900/80 px-1 rounded"><i class="fa-solid fa-chart-line mr-1"></i> Margen de Error (Loss)</span>
+                        <span class="absolute top-2 right-12 text-[9px] text-slate-500 z-10 hidden sm:block">Objetivo: Bajar a 0</span>
                         <span id="loss-value" class="absolute top-2 right-3 text-xs text-indigo-400 font-bold z-10 bg-slate-900/80 px-1 rounded">--</span>
                         <div class="w-full h-full relative pt-4">
                             <canvas id="lossChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- NUEVO: Consola / Terminal de Entrenamiento -->
+                    <div class="bg-black rounded-xl p-2 border border-slate-700 h-32 relative flex flex-col font-mono text-[10px] shadow-inner">
+                        <div class="flex justify-between items-center border-b border-slate-800 pb-1 mb-1">
+                            <span class="text-slate-500"><i class="fa-solid fa-terminal mr-1"></i> Consola en vivo</span>
+                            <span id="epoch-counter" class="text-cyan-500 font-bold">Época: 0/25</span>
+                        </div>
+                        <div id="training-terminal" class="flex-grow overflow-y-auto flex flex-col gap-1 pr-1 text-slate-400 scroll-smooth">
+                            <span>> Esperando capturas para iniciar...</span>
                         </div>
                     </div>
 
@@ -257,6 +270,7 @@
         let totalExamples = 0;
         let lastPredictionTime = 0;
         let lossData = { labels: [], data: [] };
+        let previousLoss = null; // Variable para rastrear la evolución del error
 
         // Parámetros de Machine Learning Optimizados para Navegador
         const TOTAL_EPOCHS = 25; // Reduce el tiempo de entrenamiento a la mitad
@@ -531,15 +545,40 @@
             if (activeClasses >= 2) btn.disabled = false;
         }
 
+        // NUEVO: Función para escribir en la terminal virtual
+        function logTerminal(message, type = 'normal') {
+            const terminal = document.getElementById('training-terminal');
+            const el = document.createElement('span');
+            
+            if (type === 'highlight') el.className = 'text-green-400 font-bold';
+            else if (type === 'warn') el.className = 'text-yellow-400';
+            else if (type === 'info') el.className = 'text-cyan-400';
+            else el.className = 'text-slate-400';
+            
+            el.innerText = `> ${message}`;
+            terminal.appendChild(el);
+            
+            // Auto-scroll hacia abajo para ver el texto más reciente
+            terminal.scrollTop = terminal.scrollHeight; 
+        }
+
         function startTraining() {
             if (isTraining) return;
             isTraining = true;
             isPredicting = false;
             currentEpoch = 0;
+            previousLoss = null;
             
             lossData.labels = [];
             lossData.data = [];
             lossChart.update();
+            
+            // Preparar terminal educativamente
+            document.getElementById('training-terminal').innerHTML = '';
+            logTerminal("Iniciando fase de entrenamiento...", "info");
+            logTerminal(`Analizando ${totalExamples} tensores de imágenes...`, "normal");
+            logTerminal("Algoritmo de aprendizaje: Backpropagation", "warn");
+            logTerminal("Ajustando pesos neuronales...", "normal");
             
             const btn = document.getElementById('train-btn');
             btn.disabled = true;
@@ -562,9 +601,22 @@
 
         function whileTraining(loss) {
             if (loss === null) {
+                logTerminal("✅ Entrenamiento completado. Modelo convergido.", "highlight");
                 trainingComplete();
             } else {
                 currentEpoch++;
+                
+                // Determinar la evolución: ¿El error sube o baja?
+                let evolutionStr = "";
+                if (previousLoss !== null) {
+                    if (loss < previousLoss) evolutionStr = " ↓ Mejorando";
+                    else if (loss > previousLoss) evolutionStr = " ↑ Ajustando";
+                }
+                previousLoss = loss;
+
+                // Enviar métrica detallada a la consola en tiempo real
+                logTerminal(`Época ${currentEpoch}/${TOTAL_EPOCHS} | Loss: ${loss.toFixed(4)}${evolutionStr}`);
+                document.getElementById('epoch-counter').innerText = `Época: ${currentEpoch}/${TOTAL_EPOCHS}`;
                 
                 // Calcular el porcentaje real asegurándonos de que no exceda el 99% hasta que realmente termine (loss === null)
                 let percentage = Math.min(99, Math.round((currentEpoch / TOTAL_EPOCHS) * 100));
