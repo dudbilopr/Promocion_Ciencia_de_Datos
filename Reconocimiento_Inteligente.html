@@ -14,8 +14,8 @@
     <!-- Chart.js para gráficos de ciencia de datos -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
-    <!-- ml5.js (TensorFlow.js wrapper) para Machine Learning en el navegador -->
-    <script src="https://unpkg.com/ml5@latest/dist/ml5.min.js"></script>
+    <!-- ml5.js: Cambiamos a CDNJS (Cloudflare) fijando la versión para descargas mucho más rápidas y estables -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ml5/0.12.2/ml5.min.js"></script>
 
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Fira+Code:wght@400;600&display=swap');
@@ -59,6 +59,15 @@
         ::-webkit-scrollbar-track { background: rgba(15, 23, 42, 0.5); border-radius: 4px; }
         ::-webkit-scrollbar-thumb { background: rgba(99, 102, 241, 0.5); border-radius: 4px; }
         ::-webkit-scrollbar-thumb:hover { background: rgba(99, 102, 241, 0.8); }
+
+        /* Animación de escaneo (UX loading) */
+        @keyframes scan {
+            0% { transform: translateY(-100%); }
+            100% { transform: translateY(200%); }
+        }
+        .scan-line {
+            animation: scan 2s linear infinite;
+        }
     </style>
 </head>
 
@@ -69,12 +78,20 @@
         <div class="container mx-auto flex flex-col md:flex-row items-center justify-between gap-3 text-center md:text-left">
             <div>
                 <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-cyan-300">
-                    <i class="fa-solid fa-brain text-indigo-400 mr-2"></i> Reto Data Science
+                    <i class="fa-solid fa-brain text-indigo-400 mr-2"></i> Laboratorio de IA
                 </h1>
-                <p class="text-xs sm:text-sm text-indigo-200 mt-1 opacity-90">Entrena tu propio modelo de Inteligencia Artificial en el navegador.</p>
+                <p class="text-xs sm:text-sm text-indigo-200 mt-1 opacity-90">Entrena redes neuronales directo en tu navegador.</p>
             </div>
-            <div id="status-badge" class="bg-yellow-500/20 text-yellow-300 border border-yellow-500/30 px-4 py-2 rounded-full text-xs sm:text-sm font-bold flex items-center shadow-lg w-full md:w-auto justify-center transition-all duration-300">
-                <i class="fa-solid fa-spinner fa-spin mr-2"></i> Cargando Red Neuronal...
+            
+            <!-- Badge de Estado Mejorado con feedback sobre la descarga -->
+            <div class="flex flex-col items-center md:items-end">
+                <div id="status-badge" class="bg-yellow-500/20 text-yellow-300 border border-yellow-500/30 px-4 py-2 rounded-full text-xs sm:text-sm font-bold flex items-center shadow-lg w-full md:w-auto justify-center transition-all duration-300 relative overflow-hidden">
+                    <i class="fa-solid fa-cloud-arrow-down fa-bounce mr-2"></i> 
+                    <span id="status-text">Iniciando Motor...</span>
+                    <!-- Barra de progreso simulada para UX -->
+                    <div id="download-progress" class="absolute bottom-0 left-0 h-1 bg-yellow-400 w-0 transition-all duration-1000"></div>
+                </div>
+                <span id="status-hint" class="text-[10px] text-slate-400 mt-1 hidden">El navegador guardará esto en caché para la próxima vez.</span>
             </div>
         </div>
     </header>
@@ -82,27 +99,27 @@
     <main class="container mx-auto p-4 flex-grow flex flex-col gap-6">
 
         <!-- Panel Pedagógico (Humano y Explicativo) -->
-        <section class="glass-panel rounded-2xl p-5 border-l-4 border-indigo-500">
-            <h3 class="text-lg font-bold text-white mb-3"><i class="fa-solid fa-map-location-dot text-indigo-400 mr-2"></i> Tu misión en 3 sencillos pasos:</h3>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-slate-300">
-                <div class="bg-slate-800/50 p-4 rounded-xl border border-slate-700 hover:bg-slate-700/80 transition-colors">
-                    <strong class="text-indigo-400 block mb-1 text-base"><span class="bg-indigo-600 text-white px-2 py-0.5 rounded-full text-xs mr-2">1</span> Recolecta</strong> 
-                    Usa la cámara para capturar fotos haciendo gestos o mostrando formas. ¡La IA necesita al menos <b class="text-white">30 fotos</b> por categoría!
+        <section class="glass-panel rounded-2xl p-5 border-l-4 border-indigo-500 relative overflow-hidden">
+            <h3 class="text-lg font-bold text-white mb-3 relative z-10"><i class="fa-solid fa-map-location-dot text-indigo-400 mr-2"></i> Tu misión en 3 sencillos pasos:</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-slate-300 relative z-10">
+                <div class="bg-slate-800/80 p-4 rounded-xl border border-slate-700 hover:border-indigo-500 transition-colors">
+                    <strong class="text-indigo-400 block mb-1 text-base"><span class="bg-indigo-600 text-white px-2 py-0.5 rounded-full text-xs mr-2">1</span> Enséñale (Recolecta)</strong> 
+                    Usa tu cámara. Haz una cara feliz y presiona "Capturar" 30 veces. Luego haz una cara triste y haz lo mismo. ¡Enséñale varias cosas!
                 </div>
-                <div class="bg-slate-800/50 p-4 rounded-xl border border-slate-700 hover:bg-slate-700/80 transition-colors">
-                    <strong class="text-cyan-400 block mb-1 text-base"><span class="bg-cyan-600 text-white px-2 py-0.5 rounded-full text-xs mr-2">2</span> Entrena</strong> 
-                    Presiona "Entrenar". Verás una gráfica de cómo la IA comete errores y aprende de ellos. Si la línea baja a cero, ¡es más inteligente!
+                <div class="bg-slate-800/80 p-4 rounded-xl border border-slate-700 hover:border-cyan-500 transition-colors">
+                    <strong class="text-cyan-400 block mb-1 text-base"><span class="bg-cyan-600 text-white px-2 py-0.5 rounded-full text-xs mr-2">2</span> Crea el Cerebro (Entrena)</strong> 
+                    Presiona "Entrenar". Verás una gráfica de cómo la IA comete errores y aprende de ellos. Cuando la línea baja, ¡se vuelve más lista!
                 </div>
-                <div class="bg-slate-800/50 p-4 rounded-xl border border-slate-700 hover:bg-slate-700/80 transition-colors">
-                    <strong class="text-emerald-400 block mb-1 text-base"><span class="bg-emerald-600 text-white px-2 py-0.5 rounded-full text-xs mr-2">3</span> Prueba y Fallo</strong> 
-                    Pruébala en vivo. Si se equivoca, a eso le llamamos <b class="text-white">"Sesgo" (Bias)</b>. Significa que le faltan ejemplos. ¡Agrega más fotos y re-entrena!
+                <div class="bg-slate-800/80 p-4 rounded-xl border border-slate-700 hover:border-emerald-500 transition-colors">
+                    <strong class="text-emerald-400 block mb-1 text-base"><span class="bg-emerald-600 text-white px-2 py-0.5 rounded-full text-xs mr-2">3</span> El Reto (Prueba)</strong> 
+                    Pruébala en vivo. Si se equivoca con algo, significa que le faltaron ejemplos de eso (se llama <b class="text-white">Sesgo</b>). ¡Sube más fotos y re-entrena!
                 </div>
             </div>
+            <i class="fa-solid fa-graduation-cap text-8xl text-indigo-500/10 absolute -right-4 top-4"></i>
         </section>
 
         <!-- Métricas en Tiempo Real -->
         <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <!-- Total Dataset -->
             <div class="glass-panel p-4 rounded-2xl flex items-center justify-between">
                 <div>
                     <p class="text-xs text-slate-400 uppercase tracking-wider font-semibold">Total Imágenes</p>
@@ -111,29 +128,25 @@
                 <i class="fa-solid fa-images text-3xl text-indigo-500/50"></i>
             </div>
             
-            <!-- Tiempo de Inferencia -->
-            <div class="glass-panel p-4 rounded-2xl flex items-center justify-between">
+            <div class="glass-panel p-4 rounded-2xl flex items-center justify-between group">
                 <div>
                     <p class="text-xs text-slate-400 uppercase tracking-wider font-semibold">Tiempo Inferencia</p>
                     <p class="text-2xl font-black text-cyan-400 font-mono mt-1"><span id="inference-time">--</span><span class="text-sm text-cyan-600 ml-1">ms</span></p>
                 </div>
-                <i class="fa-solid fa-stopwatch text-3xl text-cyan-500/50"></i>
+                <i class="fa-solid fa-stopwatch text-3xl text-cyan-500/50 group-hover:rotate-12 transition-transform"></i>
             </div>
 
-            <!-- Salud del Dataset (Análisis de Sesgo) -->
             <div class="glass-panel p-4 rounded-2xl col-span-1 md:col-span-2 flex flex-col justify-center relative overflow-hidden">
                 <div class="flex justify-between items-end mb-2 z-10">
                     <div>
                         <h4 class="text-sm font-bold text-slate-200"><i class="fa-solid fa-scale-balanced text-orange-400 mr-1"></i> Equilibrio de los Datos</h4>
-                        <p class="text-[10px] text-slate-400 leading-tight">Evita el "Sesgo": mantén las categorías con igual cantidad de fotos.</p>
+                        <p class="text-[10px] text-slate-400 leading-tight">Evita el sesgo: trata de que todas las categorías tengan imágenes parecidas.</p>
                     </div>
                     <span id="data-health-badge" class="text-[10px] font-bold bg-slate-700 text-slate-300 px-2 py-1 rounded-md shadow">Analizando...</span>
                 </div>
                 <div class="w-full bg-slate-800 rounded-full h-2.5 shadow-inner z-10">
                     <div id="data-balance-bar" class="bg-slate-500 h-2.5 rounded-full transition-all duration-1000 w-0"></div>
                 </div>
-                <!-- Decoración de fondo -->
-                <i class="fa-solid fa-database text-6xl text-slate-700/20 absolute -right-4 -bottom-4"></i>
             </div>
         </section>
 
@@ -142,36 +155,30 @@
             <!-- Columna Izquierda: Cámara y Predicción -->
             <div class="w-full lg:w-1/3 flex flex-col gap-4">
                 
-                <!-- Visor de Cámara -->
                 <div class="glass-panel p-4 rounded-2xl flex flex-col items-center relative overflow-hidden group">
                     <h2 class="text-sm uppercase tracking-wider font-bold text-slate-300 w-full mb-3 flex items-center justify-between">
-                        <span><i class="fa-solid fa-camera mr-2 text-indigo-400"></i> Entrada (Input)</span>
-                        <span class="text-[10px] bg-slate-800 px-2 py-1 rounded text-slate-400 font-mono">224x224px RGB</span>
+                        <span><i class="fa-solid fa-camera mr-2 text-indigo-400"></i> Entrada Visual</span>
+                        <span class="text-[10px] bg-slate-800 px-2 py-1 rounded text-slate-400 font-mono border border-slate-700">Tensor 224x224px</span>
                     </h2>
                     
                     <div id="video-container" class="relative w-full rounded-xl overflow-hidden shadow-[0_0_15px_rgba(0,0,0,0.5)] border border-slate-600 bg-black aspect-[4/3] flex items-center justify-center">
-                        <!-- Mensaje de espera si la cámara tarda -->
                         <span id="camera-loading" class="absolute text-slate-400 text-sm flex flex-col items-center">
                             <i class="fa-solid fa-video text-2xl mb-2 animate-pulse"></i> Activando cámara...
                         </span>
                         <video id="video" autoplay playsinline muted class="absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-500 transform scale-x-[-1]"></video>
-                    </div>
-                    
-                    <!-- Diagrama de Extracción -->
-                    <div class="mt-4 w-full bg-slate-800/50 p-3 rounded-xl border border-slate-700 text-center text-xs text-slate-400">
-                        <i class="fa-solid fa-network-wired text-indigo-400 mb-1 text-lg"></i>
-                        <p>El modelo <strong>MobileNet</strong> extrae características (bordes, formas) de tu cámara en tiempo real.</p>
+                        <!-- Efecto de escaneo cuando predice -->
+                        <div id="scan-effect" class="hidden absolute top-0 left-0 w-full h-8 bg-gradient-to-b from-transparent to-cyan-500/30 scan-line border-b border-cyan-400/50"></div>
                     </div>
                 </div>
 
-                <!-- Resultados de Predicción (Softmax) -->
                 <div class="glass-panel p-4 rounded-2xl flex-grow">
-                    <h2 class="text-sm uppercase tracking-wider font-bold text-slate-300 mb-3"><i class="fa-solid fa-chart-bar mr-2 text-cyan-400"></i> Probabilidad (Softmax)</h2>
+                    <h2 class="text-sm uppercase tracking-wider font-bold text-slate-300 mb-3 flex justify-between">
+                        <span><i class="fa-solid fa-chart-bar mr-2 text-cyan-400"></i> Softmax (Salida)</span>
+                    </h2>
                     <div id="prediction-container" class="flex flex-col items-center justify-center h-40 text-center opacity-50">
                         <i class="fa-solid fa-eye-slash text-4xl text-slate-600 mb-2"></i>
-                        <p class="text-sm text-slate-400">Entrena el modelo primero<br>para ver resultados.</p>
+                        <p class="text-sm text-slate-400">Entrena el modelo primero<br>para ver cómo piensa.</p>
                     </div>
-                    <!-- Barras de confianza dinámicas irán aquí -->
                     <div id="confidence-bars" class="space-y-2 hidden">
                         <!-- Generado por JS -->
                     </div>
@@ -179,42 +186,37 @@
             </div>
 
             <!-- Área de Clases (Dataset) -->
-            <div class="w-full lg:w-2/3 glass-panel p-4 sm:p-6 rounded-2xl flex flex-col h-[600px]">
-                <div class="flex justify-between items-center mb-4">
+            <div class="w-full lg:w-2/3 glass-panel p-4 sm:p-6 rounded-2xl flex flex-col h-[650px]">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-2">
                     <h2 class="text-sm sm:text-base uppercase tracking-wider font-bold text-slate-300">
-                        <i class="fa-solid fa-folder-tree mr-2 text-indigo-400"></i> Tu Dataset Local
+                        <i class="fa-solid fa-database mr-2 text-indigo-400"></i> Datos de Entrenamiento
                     </h2>
-                    <button onclick="addNewClass()" class="bg-indigo-600/20 hover:bg-indigo-600/40 text-indigo-300 border border-indigo-500/50 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors">
-                        <i class="fa-solid fa-plus mr-1"></i> Nueva Clase
+                    <button onclick="addNewClass()" class="w-full sm:w-auto bg-indigo-600/20 hover:bg-indigo-600/40 text-indigo-300 border border-indigo-500/50 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors">
+                        <i class="fa-solid fa-plus mr-1"></i> Añadir Categoría
                     </button>
                 </div>
                 
-                <!-- Grid de Tarjetas de Clases (Scrollable) -->
                 <div id="classes-container" class="grid grid-cols-cards gap-4 overflow-y-auto pr-2 pb-4 flex-grow content-start">
                     <!-- Las clases se generan dinámicamente con JS -->
                 </div>
 
-                <!-- Controles de Entrenamiento y Gráfica -->
                 <div class="mt-4 pt-4 border-t border-slate-700 grid grid-cols-1 md:grid-cols-2 gap-4">
                     
-                    <!-- Botón y Estado -->
                     <div class="flex flex-col justify-center gap-3">
-                        <button id="train-btn" onclick="startTraining()" disabled class="w-full bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-500 hover:to-blue-500 disabled:from-slate-700 disabled:to-slate-700 disabled:text-slate-500 disabled:cursor-not-allowed text-white font-bold py-4 px-4 rounded-xl shadow-lg transition-all flex justify-center items-center gap-3 text-lg relative overflow-hidden group">
-                            <i class="fa-solid fa-cogs group-hover:rotate-180 transition-transform duration-500"></i>
-                            <span id="train-btn-text">Enseñar a la IA (Entrenar)</span>
-                            <!-- Progreso interno del botón -->
+                        <button id="train-btn" onclick="startTraining()" disabled class="w-full bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-500 hover:to-blue-500 disabled:from-slate-800 disabled:to-slate-800 disabled:text-slate-500 disabled:border-slate-700 border border-transparent disabled:cursor-not-allowed text-white font-bold py-4 px-4 rounded-xl shadow-lg transition-all flex justify-center items-center gap-3 text-lg relative overflow-hidden group">
+                            <i class="fa-solid fa-network-wired group-hover:scale-110 transition-transform duration-500"></i>
+                            <span id="train-btn-text">Entrenar Red Neuronal</span>
                             <div id="train-progress-bg" class="absolute left-0 top-0 bottom-0 bg-white/20 w-0 transition-all duration-100 ease-linear"></div>
                         </button>
                         
-                        <button id="download-btn" onclick="downloadModel()" class="hidden w-full bg-emerald-600/20 hover:bg-emerald-600/40 border border-emerald-500/50 text-emerald-400 font-bold py-2 px-4 rounded-xl transition-all justify-center items-center gap-2 text-sm">
-                            <i class="fa-solid fa-download"></i> Descargar Modelo Entrenado
+                        <button id="download-btn" onclick="downloadModel()" class="hidden w-full bg-slate-800 hover:bg-slate-700 border border-emerald-500/50 text-emerald-400 font-bold py-2 px-4 rounded-xl transition-all justify-center items-center gap-2 text-sm shadow-[0_0_10px_rgba(16,185,129,0.2)]">
+                            <i class="fa-solid fa-download"></i> Guardar Cerebro (Descargar)
                         </button>
                     </div>
 
-                    <!-- Gráfico de Pérdida (Loss) -->
-                    <div class="bg-slate-900 rounded-xl p-2 border border-slate-700 h-32 relative flex flex-col justify-between">
-                        <span class="absolute top-2 left-3 text-[10px] text-slate-400 font-mono z-10"><i class="fa-solid fa-chart-line mr-1"></i> Pérdida (Loss)</span>
-                        <span id="loss-value" class="absolute top-2 right-3 text-xs text-indigo-400 font-bold z-10">--</span>
+                    <div class="bg-slate-900 rounded-xl p-2 border border-slate-700 h-32 relative flex flex-col justify-between overflow-hidden group">
+                        <span class="absolute top-2 left-3 text-[10px] text-slate-400 font-mono z-10 bg-slate-900/80 px-1 rounded"><i class="fa-solid fa-chart-line mr-1"></i> Margen de Error (Loss)</span>
+                        <span id="loss-value" class="absolute top-2 right-3 text-xs text-indigo-400 font-bold z-10 bg-slate-900/80 px-1 rounded">--</span>
                         <div class="w-full h-full relative pt-4">
                             <canvas id="lossChart"></canvas>
                         </div>
@@ -237,28 +239,25 @@
         let totalExamples = 0;
         let lastPredictionTime = 0;
         
-        // Datos para el gráfico
         let lossData = { labels: [], data: [] };
 
-        // Definición de las clases pedagógicas
+        // Dataset de prueba ampliado para el reto
         let classesData = [
             { id: 'class_0', name: '😁 Cara Feliz', count: 0, color: 'text-green-400', bg: 'bg-green-500', icon: 'fa-face-smile' },
-            { id: 'class_1', name: '😲 Sorprendido/a', count: 0, color: 'text-yellow-400', bg: 'bg-yellow-500', icon: 'fa-face-surprise' },
+            { id: 'class_1', name: '😲 Cara Sorprendida', count: 0, color: 'text-yellow-400', bg: 'bg-yellow-500', icon: 'fa-face-surprise' },
             { id: 'class_2', name: '✌️ Seña de Paz', count: 0, color: 'text-purple-400', bg: 'bg-purple-500', icon: 'fa-hand-peace' },
             { id: 'class_3', name: '⭕ Forma Círculo', count: 0, color: 'text-orange-400', bg: 'bg-orange-500', icon: 'fa-circle' },
             { id: 'class_4', name: '⬛ Fondo (Nada)', count: 0, color: 'text-slate-400', bg: 'bg-slate-500', icon: 'fa-image' }
         ];
         let classCounter = classesData.length;
 
-        // --- Configuración Inicial e Interfaz ---
         document.addEventListener('DOMContentLoaded', () => {
             initChart();
             renderClasses();
             initCamera();
-            setInterval(updateDataMetricsUI, 1000); // Bucle para la UI de Ciencia de Datos
+            setInterval(updateDataMetricsUI, 1000); 
         });
 
-        // Configuración de Chart.js para la pérdida
         function initChart() {
             const ctx = document.getElementById('lossChart').getContext('2d');
             lossChart = new Chart(ctx, {
@@ -266,9 +265,9 @@
                 data: {
                     labels: [],
                     datasets: [{
-                        label: 'Pérdida (Loss)',
+                        label: 'Error',
                         data: [],
-                        borderColor: '#818cf8', // Indigo 400
+                        borderColor: '#818cf8', 
                         backgroundColor: 'rgba(129, 140, 248, 0.2)',
                         borderWidth: 2,
                         pointRadius: 0,
@@ -289,16 +288,17 @@
                             ticks: { color: '#64748b', font: { size: 9 } }
                         }
                     },
-                    animation: { duration: 0 } // Desactivar para actualización rápida
+                    animation: { duration: 0 } 
                 }
             });
         }
 
-        // --- STREAMING_CHUNK: Lógica de Cámara y Machine Learning (ml5.js) ---
+        // --- STREAMING_CHUNK: Configurando acceso a cámara y descarga de MobileNet ---
         
         async function initCamera() {
             video = document.getElementById('video');
             try {
+                // Configuramos la cámara ideal para modelos ML (cuadrada y baja res)
                 const stream = await navigator.mediaDevices.getUserMedia({ 
                     video: { facingMode: "user", width: 224, height: 224 } 
                 });
@@ -307,66 +307,84 @@
                     video.play();
                     video.style.opacity = "1";
                     document.getElementById('camera-loading').style.display = 'none';
-                    initML5(); // Iniciar ml5 solo cuando la cámara está lista
+                    initML5(); 
                 };
             } catch (err) {
-                console.error("Error al acceder a la cámara:", err);
-                document.getElementById('camera-loading').innerHTML = `<i class="fa-solid fa-triangle-exclamation text-red-400 text-2xl mb-2"></i> Error de cámara. Usa HTTPS o Localhost.`;
+                console.error("Cámara denegada o no disponible:", err);
+                document.getElementById('camera-loading').innerHTML = `<i class="fa-solid fa-triangle-exclamation text-red-400 text-2xl mb-2"></i> Requiere cámara.<br><span class="text-xs">Usa HTTPS o IP Local (Localhost).</span>`;
                 document.getElementById('camera-loading').classList.add("text-red-400");
-                // Aún sin cámara, permitimos inicializar para cargar fotos manualmente
-                initML5();
+                initML5(); // Aún así iniciamos ml5 para permitir uso sin cámara a futuro
             }
         }
 
         function initML5() {
-            updateStatus("Descargando MobileNet (20MB)...", "bg-yellow-500/20 text-yellow-300", "fa-spinner fa-spin");
-            // Usamos MobileNet como extractor de características base
-            featureExtractor = ml5.featureExtractor('MobileNet', modelLoaded);
+            // UX Tweak: Explicar por qué demora
+            document.getElementById('status-text').innerText = "Descargando Red (20MB)... Solo la 1ra vez";
+            document.getElementById('status-badge').className = "bg-yellow-500/20 text-yellow-300 border border-yellow-500/30 px-4 py-2 rounded-full text-xs font-bold flex items-center shadow-[0_0_15px_rgba(234,179,8,0.3)] w-full md:w-auto justify-center relative overflow-hidden";
+            document.getElementById('status-hint').classList.remove('hidden');
+            
+            // Simulador de progreso para dar paz mental al usuario
+            let fakeProgress = 0;
+            const progressInterval = setInterval(() => {
+                fakeProgress += Math.random() * 5;
+                if(fakeProgress > 90) clearInterval(progressInterval);
+                document.getElementById('download-progress').style.width = `${Math.min(fakeProgress, 95)}%`;
+            }, 500);
+
+            // OPTIMIZACIÓN: Pasamos opciones para que el entrenamiento posterior sea más ágil
+            const options = {
+                epochs: 25, // Número balanceado de iteraciones
+                batchSize: 0.2 // Tamaño de lote dinámico
+            };
+
+            featureExtractor = ml5.featureExtractor('MobileNet', options, () => {
+                clearInterval(progressInterval);
+                document.getElementById('download-progress').style.width = `100%`;
+                modelLoaded();
+            });
         }
 
         function modelLoaded() {
-            // Creamos un clasificador personalizado vacío sobre MobileNet
             classifier = featureExtractor.classification(video, videoReady);
         }
 
         function videoReady() {
             isModelReady = true;
-            updateStatus("IA Lista. ¡Agrega datos!", "bg-emerald-500/20 text-emerald-400 border-emerald-500/50", "fa-check-circle");
+            document.getElementById('status-text').innerText = "¡IA Lista! Agrega fotos a las categorías.";
+            document.getElementById('status-badge').innerHTML = `<i class="fa-solid fa-check-circle mr-2"></i> ${document.getElementById('status-text').innerText}`;
+            document.getElementById('status-badge').className = "bg-emerald-500/20 text-emerald-400 border border-emerald-500/50 px-4 py-2 rounded-full text-xs font-bold flex items-center shadow-[0_0_15px_rgba(16,185,129,0.3)] w-full md:w-auto justify-center transition-all duration-300";
+            document.getElementById('status-hint').classList.add('hidden');
+            
+            // Habilitar botones
+            renderClasses();
         }
 
-        function updateStatus(text, colorClass, iconClass) {
-            const badge = document.getElementById('status-badge');
-            badge.className = `border px-4 py-2 rounded-full text-xs sm:text-sm font-bold flex items-center shadow-lg w-full md:w-auto justify-center transition-all duration-300 ${colorClass}`;
-            badge.innerHTML = `<i class="fa-solid ${iconClass} mr-2"></i> ${text}`;
-        }
-
-        // --- STREAMING_CHUNK: Gestión del Dataset UI y Lógica ---
+        // --- STREAMING_CHUNK: Manejo de interfaz de usuario y recolección de datos ---
 
         function renderClasses() {
             const container = document.getElementById('classes-container');
             container.innerHTML = '';
             
-            classesData.forEach((cls, index) => {
+            classesData.forEach((cls) => {
                 const card = document.createElement('div');
-                card.className = "bg-slate-800/80 border border-slate-700 rounded-xl p-3 flex flex-col shadow-sm relative overflow-hidden group hover:border-slate-500 transition-colors";
+                card.className = "bg-slate-800/80 border border-slate-700 rounded-xl p-3 flex flex-col shadow-sm relative overflow-hidden group hover:border-slate-500 transition-colors h-32";
                 
                 card.innerHTML = `
-                    <div class="flex justify-between items-start mb-2 z-10">
+                    <div class="flex justify-between items-start mb-1 z-10">
                         <h3 class="font-bold text-sm text-slate-200 truncate pr-2 w-full" title="${cls.name}">
                             <i class="fa-solid ${cls.icon} ${cls.color} mr-1"></i> ${cls.name}
                         </h3>
                     </div>
                     
-                    <div class="flex-grow flex items-center justify-center py-2 z-10">
+                    <div class="flex-grow flex items-center justify-center z-10">
                         <div class="text-3xl font-black font-mono text-slate-300 tracking-tighter" id="count-${cls.id}">${cls.count}</div>
-                        <span class="text-[10px] text-slate-500 ml-1 uppercase">Imágenes</span>
+                        <span class="text-[10px] text-slate-500 ml-1 uppercase mt-2">Fotos</span>
                     </div>
                     
-                    <button onclick="addExample('${cls.id}')" ${!isModelReady ? 'disabled' : ''} class="mt-2 w-full ${cls.bg} hover:brightness-110 disabled:bg-slate-700 disabled:text-slate-500 disabled:cursor-not-allowed text-white text-xs font-bold py-2 rounded-lg transition-all active:scale-95 shadow-md z-10 flex items-center justify-center gap-1">
+                    <button onclick="addExample('${cls.id}')" ${!isModelReady ? 'disabled' : ''} class="mt-1 w-full ${cls.bg} hover:brightness-110 disabled:bg-slate-700 disabled:text-slate-500 disabled:cursor-not-allowed text-white text-xs font-bold py-2 rounded-lg transition-all active:scale-95 shadow-md z-10 flex items-center justify-center gap-1">
                         <i class="fa-solid fa-camera"></i> Capturar
                     </button>
                     
-                    <!-- Decoración de fondo suave -->
                     <div class="${cls.bg} absolute -bottom-10 -right-10 w-24 h-24 rounded-full opacity-10 blur-xl"></div>
                 `;
                 container.appendChild(card);
@@ -375,16 +393,12 @@
         }
 
         function addNewClass() {
-            const name = prompt("Nombre de la nueva clase (Ej: 'Taza', 'Triste'):");
+            const name = prompt("Escribe qué quieres que reconozca (Ej: 'Gato', 'Enojado', 'Mano Abierta'):");
             if (name && name.trim() !== '') {
                 const newId = `class_${classCounter++}`;
                 classesData.push({ 
-                    id: newId, 
-                    name: name, 
-                    count: 0, 
-                    color: 'text-indigo-400', 
-                    bg: 'bg-indigo-600',
-                    icon: 'fa-tag'
+                    id: newId, name: name, count: 0, 
+                    color: 'text-indigo-400', bg: 'bg-indigo-600', icon: 'fa-tag'
                 });
                 renderClasses();
             }
@@ -395,15 +409,14 @@
             
             const cls = classesData.find(c => c.id === classId);
             if (cls) {
-                // ml5.js: Añadir imagen actual del video asociada a la etiqueta (name)
+                // ml5.js: Tomar la foto de la cámara y asignarle una etiqueta matemática
                 classifier.addImage(cls.name);
                 
-                // Efecto visual de flash en el video
+                // Efecto visual flash para saber que tomó la foto
                 const v = document.getElementById('video-container');
                 v.classList.add('ring-4', 'ring-white');
                 setTimeout(() => v.classList.remove('ring-4', 'ring-white'), 100);
 
-                // Actualizar contadores
                 cls.count++;
                 totalExamples++;
                 document.getElementById(`count-${classId}`).innerText = cls.count;
@@ -413,37 +426,37 @@
             }
         }
 
-        // --- STREAMING_CHUNK: Métricas de Data Science (Salud y Balance) ---
+        // --- STREAMING_CHUNK: Calculando métricas de Sesgo y Salud del Dataset ---
 
         function updateDataMetricsUI() {
             if (totalExamples === 0) return;
             
             let counts = classesData.map(c => c.count);
             let maxCount = Math.max(...counts);
-            let minCount = Math.min(...counts);
+            let minCount = Math.min(...counts.filter(c=>c>0)); // Min entre las que tienen fotos
             let activeClasses = counts.filter(c => c > 0).length;
             
             const badge = document.getElementById('data-health-badge');
             const bar = document.getElementById('data-balance-bar');
             
-            // Lógica Pedagógica de Balance y Sesgo (Bias)
+            // Análisis Pedagógico
             if (activeClasses < 2) {
-                badge.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> Necesita contraste';
+                badge.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> Necesita Contrastes';
                 badge.className = "text-[10px] font-bold bg-red-900/50 text-red-400 border border-red-800/50 px-2 py-1 rounded-md shadow";
                 bar.style.width = "15%";
                 bar.className = "bg-red-500 h-2.5 rounded-full transition-all duration-1000 shadow-[0_0_8px_rgba(239,68,68,0.6)]";
-            } else if (maxCount - minCount > 15 && minCount > 0) {
-                badge.innerHTML = '<i class="fa-solid fa-scale-unbalanced"></i> Sesgo (Desbalance)';
+            } else if (maxCount - minCount > 15) {
+                badge.innerHTML = '<i class="fa-solid fa-scale-unbalanced"></i> Hay Sesgo (Bias)';
                 badge.className = "text-[10px] font-bold bg-orange-900/50 text-orange-400 border border-orange-800/50 px-2 py-1 rounded-md shadow";
                 bar.style.width = "45%";
                 bar.className = "bg-orange-500 h-2.5 rounded-full transition-all duration-1000 shadow-[0_0_8px_rgba(249,115,22,0.6)]";
             } else if (minCount >= 20 && (maxCount - minCount <= 10)) {
-                badge.innerHTML = '<i class="fa-solid fa-check-double"></i> ¡Dataset Excelente!';
+                badge.innerHTML = '<i class="fa-solid fa-check-double"></i> Dataset Perfecto';
                 badge.className = "text-[10px] font-bold bg-emerald-900/50 text-emerald-400 border border-emerald-800/50 px-2 py-1 rounded-md shadow";
                 bar.style.width = "100%";
                 bar.className = "bg-emerald-500 h-2.5 rounded-full transition-all duration-1000 shadow-[0_0_12px_rgba(16,185,129,0.8)]";
             } else {
-                badge.innerHTML = '<i class="fa-solid fa-chart-line"></i> Aprendiendo...';
+                badge.innerHTML = '<i class="fa-solid fa-chart-line"></i> Aceptable...';
                 badge.className = "text-[10px] font-bold bg-blue-900/50 text-blue-400 border border-blue-800/50 px-2 py-1 rounded-md shadow";
                 bar.style.width = "70%";
                 bar.className = "bg-blue-500 h-2.5 rounded-full transition-all duration-1000 shadow-[0_0_8px_rgba(59,130,246,0.6)]";
@@ -453,41 +466,37 @@
         function checkTrainButton() {
             const activeClasses = classesData.filter(c => c.count > 0).length;
             const btn = document.getElementById('train-btn');
-            // Requerimos al menos 2 clases para entrenar
-            if (activeClasses >= 2) {
-                btn.disabled = false;
-            }
+            if (activeClasses >= 2) btn.disabled = false;
         }
 
-        // --- STREAMING_CHUNK: Entrenamiento y Predicción Continua ---
+        // --- STREAMING_CHUNK: Lógica de Entrenamiento (Backpropagation) y Predicción Continua ---
 
         function startTraining() {
             if (isTraining) return;
             isTraining = true;
             isPredicting = false;
             
-            // Reiniciar gráfico
             lossData.labels = [];
             lossData.data = [];
             lossChart.update();
             
             const btn = document.getElementById('train-btn');
-            const bgProgress = document.getElementById('train-progress-bg');
             btn.disabled = true;
-            document.getElementById('train-btn-text').innerText = "Entrenando Neuronas...";
-            
-            updateStatus("Entrenando Red...", "bg-blue-500/20 text-blue-400 border-blue-500/50", "fa-cogs fa-spin");
+            document.getElementById('train-btn-text').innerText = "Ajustando Pesos (Entrenando)...";
+            document.getElementById('scan-effect').classList.remove('hidden');
 
-            // ml5.js: Iniciar entrenamiento con función de callback para cada iteración (epoch)
+            document.getElementById('status-badge').innerHTML = `<i class="fa-solid fa-microchip fa-spin mr-2"></i> Procesando Tensores...`;
+            document.getElementById('status-badge').className = "bg-blue-500/20 text-blue-400 border border-blue-500/50 px-4 py-2 rounded-full text-xs font-bold flex items-center shadow-[0_0_15px_rgba(59,130,246,0.5)]";
+
+            // Iniciamos el entrenamiento del modelo
             classifier.train(whileTraining);
         }
 
         function whileTraining(loss) {
             if (loss === null) {
-                // Entrenamiento finalizado
                 trainingComplete();
             } else {
-                // Actualizar gráfica en tiempo real
+                // Actualiza gráfica Chart.js en tiempo real
                 document.getElementById('loss-value').innerText = loss.toFixed(4);
                 lossData.labels.push('');
                 lossData.data.push(loss);
@@ -495,8 +504,8 @@
                 lossChart.data.datasets[0].data = lossData.data;
                 lossChart.update();
                 
-                // Simular progreso en el botón
-                const progress = Math.min(100, lossData.data.length * 5); // Aprox epochs
+                // Simula el avance en la UI del botón
+                const progress = Math.min(100, lossData.data.length * 4); 
                 document.getElementById('train-progress-bg').style.width = `${progress}%`;
             }
         }
@@ -510,18 +519,17 @@
             
             const btn = document.getElementById('train-btn');
             btn.disabled = false;
-            document.getElementById('train-btn-text').innerText = "Re-entrenar Modelo";
+            document.getElementById('train-btn-text').innerHTML = "<i class='fa-solid fa-rotate'></i> Volver a Entrenar";
             
             document.getElementById('download-btn').classList.remove('hidden');
             document.getElementById('download-btn').classList.add('flex');
             
-            updateStatus("Modelo Listo y Clasificando", "bg-emerald-500/20 text-emerald-400 border-emerald-500/50 shadow-[0_0_15px_rgba(16,185,129,0.4)]", "fa-brain");
+            document.getElementById('status-badge').innerHTML = `<i class="fa-solid fa-brain mr-2"></i> Inteligencia Activa`;
+            document.getElementById('status-badge').className = "bg-purple-500/20 text-purple-400 border border-purple-500/50 px-4 py-2 rounded-full text-xs font-bold flex items-center shadow-[0_0_20px_rgba(168,85,247,0.6)]";
             
-            // UI de Predicción
             document.getElementById('prediction-container').classList.add('hidden');
             document.getElementById('confidence-bars').classList.remove('hidden');
             
-            // Iniciar bucle de clasificación
             classifyFrame();
         }
 
@@ -532,20 +540,16 @@
         }
 
         function gotResults(err, results) {
-            if (err) {
-                console.error(err);
-                return;
-            }
+            if (err) { console.error(err); return; }
             
-            // Calcular tiempo de inferencia
+            // Calculamos el tiempo que tardó en inferir la foto actual
             const now = performance.now();
             const inferenceMs = (now - lastPredictionTime).toFixed(0);
             document.getElementById('inference-time').innerText = inferenceMs;
 
-            // Renderizar barras Softmax
             renderConfidenceBars(results);
 
-            // Continuar el bucle (con un pequeño respiro de 50ms para no congelar la UI)
+            // Bucle constante (damos un ligero retraso de 50ms para no quemar la batería del celular)
             setTimeout(() => {
                 if (isPredicting) {
                     lastPredictionTime = performance.now();
@@ -554,34 +558,33 @@
             }, 50);
         }
 
-        // --- STREAMING_CHUNK: Utilidades y Renderizado de Softmax ---
+        // --- STREAMING_CHUNK: Renderizado de la salida matemática (Softmax) y Descarga ---
 
         function renderConfidenceBars(results) {
             const container = document.getElementById('confidence-bars');
             container.innerHTML = '';
             
-            // Tomar los top 4 resultados para mostrar
+            // Tomamos los 4 resultados más probables
             const topResults = results.slice(0, 4);
             
             topResults.forEach((res, index) => {
                 const confidence = (res.confidence * 100).toFixed(1);
-                
-                // Buscar datos de la clase original para el color
                 const cls = classesData.find(c => c.name === res.label);
                 const bgClass = cls ? cls.bg : 'bg-indigo-500';
                 
-                // La barra superior es más brillante
-                const isWinner = index === 0 && res.confidence > 0.5;
-                const opacity = isWinner ? 'opacity-100' : 'opacity-60';
-                const textColor = isWinner ? 'text-white font-bold' : 'text-slate-300';
+                // Efecto visual: la opción ganadora brilla más
+                const isWinner = index === 0 && res.confidence > 0.6;
+                const opacity = isWinner ? 'opacity-100' : 'opacity-50';
+                const textColor = isWinner ? 'text-white font-bold' : 'text-slate-400';
+                const shadow = isWinner ? `shadow-[0_0_10px_rgba(255,255,255,0.2)]` : '';
                 
                 container.innerHTML += `
-                    <div class="mb-2 ${opacity} transition-all duration-200">
+                    <div class="mb-2 ${opacity} transition-all duration-100">
                         <div class="flex justify-between text-xs mb-1">
                             <span class="${textColor} truncate pr-2 w-3/4">${res.label}</span>
                             <span class="${textColor} font-mono">${confidence}%</span>
                         </div>
-                        <div class="w-full bg-slate-800 rounded-full h-2">
+                        <div class="w-full bg-slate-800 rounded-full h-2 ${shadow}">
                             <div class="${bgClass} h-2 rounded-full transition-all duration-75" style="width: ${confidence}%"></div>
                         </div>
                     </div>
@@ -591,11 +594,11 @@
 
         function downloadModel() {
             if (classifier && isModelReady) {
-                updateStatus("Empaquetando modelo...", "bg-cyan-500/20 text-cyan-400 border-cyan-500/50", "fa-box-archive");
-                // ml5.js guarda automáticamente model.json y model.weights.bin en el navegador
+                document.getElementById('status-badge').innerHTML = `<i class="fa-solid fa-box-archive mr-2"></i> Guardando Archivos...`;
+                // ml5.js empaqueta los tensores y descarga model.json + weights.bin
                 classifier.save(); 
                 setTimeout(() => {
-                    updateStatus("Modelo Descargado", "bg-emerald-500/20 text-emerald-400 border-emerald-500/50", "fa-check");
+                    document.getElementById('status-badge').innerHTML = `<i class="fa-solid fa-brain mr-2"></i> Inteligencia Activa`;
                 }, 3000);
             }
         }
