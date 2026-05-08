@@ -246,7 +246,7 @@
     </main>
 
     <script>
-        // --- Variables Globales ---
+        // --- Variables Globales y Constantes de Optimización ---
         let featureExtractor;
         let classifier;
         let video;
@@ -257,6 +257,11 @@
         let totalExamples = 0;
         let lastPredictionTime = 0;
         let lossData = { labels: [], data: [] };
+
+        // Parámetros de Machine Learning Optimizados para Navegador
+        const TOTAL_EPOCHS = 25; // Reduce el tiempo de entrenamiento a la mitad
+        const MAX_SAMPLES_PER_CLASS = 50; // Evita el colapso de memoria RAM/WebGL
+        let currentEpoch = 0;
 
         // Categorías de Data Science para el reto
         let classesData = [
@@ -374,8 +379,13 @@
             }, 15000);
 
             try {
-                // Usamos la configuración estándar y probada de ml5.js.
-                featureExtractor = ml5.featureExtractor('MobileNet', () => {
+                // Configuramos los hiperparámetros para un entrenamiento más rápido y optimizado
+                const options = {
+                    epochs: TOTAL_EPOCHS,
+                    batchSize: 16 // Procesa imágenes en lotes pequeños, ideal para celulares
+                };
+
+                featureExtractor = ml5.featureExtractor('MobileNet', options, () => {
                     clearTimeout(timeoutCheck);
                     clearInterval(progressInterval);
                     document.getElementById('download-progress').style.width = `100%`;
@@ -452,6 +462,12 @@
             
             const cls = classesData.find(c => c.id === classId);
             if (cls) {
+                // Prevención de desbordamiento de memoria (Optimization Cap)
+                if (cls.count >= MAX_SAMPLES_PER_CLASS) {
+                    alert(`¡Optimización activada! Has alcanzado el límite saludable de ${MAX_SAMPLES_PER_CLASS} imágenes para "${cls.name}". Esto mantiene el navegador rápido.`);
+                    return;
+                }
+
                 // ml5.js: Tomar el frame actual y guardarlo bajo la etiqueta
                 classifier.addImage(cls.name);
                 
@@ -513,6 +529,7 @@
             if (isTraining) return;
             isTraining = true;
             isPredicting = false;
+            currentEpoch = 0;
             
             lossData.labels = [];
             lossData.data = [];
@@ -520,18 +537,20 @@
             
             const btn = document.getElementById('train-btn');
             btn.disabled = true;
-            document.getElementById('train-btn-text').innerText = "Entrenando (Backpropagation)...";
+            document.getElementById('train-btn-text').innerText = "Entrenando (0%)...";
             document.getElementById('scan-effect').classList.remove('hidden');
 
-            document.getElementById('status-badge').innerHTML = `<i class="fa-solid fa-microchip fa-spin mr-2"></i> Procesando Red...`;
+            document.getElementById('status-badge').innerHTML = `<i class="fa-solid fa-microchip fa-spin mr-2"></i> Entrenando IA...`;
             document.getElementById('status-badge').className = "bg-blue-500/20 text-blue-400 border border-blue-500/50 px-4 py-2 rounded-full text-xs sm:text-sm font-bold flex items-center shadow-[0_0_15px_rgba(59,130,246,0.5)]";
 
             try {
                 classifier.train(whileTraining);
             } catch (error) {
                 console.error("Error al iniciar entrenamiento:", error);
-                alert("Ocurrió un error. Asegúrate de haber capturado fotos.");
+                alert("Ocurrió un error. Asegúrate de haber capturado fotos en al menos 2 categorías.");
                 isTraining = false;
+                btn.disabled = false;
+                document.getElementById('train-btn-text').innerText = "Entrenar Red Neuronal";
             }
         }
 
@@ -539,6 +558,15 @@
             if (loss === null) {
                 trainingComplete();
             } else {
+                currentEpoch++;
+                
+                // Calcular el porcentaje real basado en las épocas completadas
+                let percentage = Math.round((currentEpoch / TOTAL_EPOCHS) * 100);
+                
+                // Actualizar interfaz con porcentaje
+                document.getElementById('train-btn-text').innerText = `Optimizando Pesos... ${percentage}%`;
+                document.getElementById('train-progress-bg').style.width = `${percentage}%`;
+
                 // Actualiza gráfica Chart.js
                 document.getElementById('loss-value').innerText = loss.toFixed(4);
                 lossData.labels.push('');
@@ -546,9 +574,6 @@
                 lossChart.data.labels = lossData.labels;
                 lossChart.data.datasets[0].data = lossData.data;
                 lossChart.update();
-                
-                const progress = Math.min(100, lossData.data.length * 4); 
-                document.getElementById('train-progress-bg').style.width = `${progress}%`;
             }
         }
 
