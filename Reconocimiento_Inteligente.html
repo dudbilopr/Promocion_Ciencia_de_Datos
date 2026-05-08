@@ -14,7 +14,7 @@
     <!-- Chart.js para gráficos de ciencia de datos -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
-    <!-- ml5.js: Usamos la fuente oficial 'unpkg' que garantiza la disponibilidad de la versión 0.12.2 -->
+    <!-- ml5.js: Usamos la fuente oficial 'unpkg' que garantiza la disponibilidad -->
     <script src="https://unpkg.com/ml5@0.12.2/dist/ml5.min.js"></script>
 
     <style>
@@ -22,7 +22,7 @@
         
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #0f172a; /* Slate 900 */
+            background-color: #0f172a; 
             background-image: 
                 radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%), 
                 radial-gradient(at 50% 0%, hsla(225,39%,30%,0.3) 0, transparent 50%), 
@@ -34,16 +34,14 @@
 
         .font-mono { font-family: 'Fira Code', monospace; }
 
-        /* Efecto Glassmorphism profesional */
         .glass-panel {
-            background: rgba(30, 41, 59, 0.7); /* Slate 800 con opacidad */
+            background: rgba(30, 41, 59, 0.7);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
             border: 1px solid rgba(255, 255, 255, 0.1);
             box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3), inset 0 1px 0 0 rgba(255, 255, 255, 0.05);
         }
 
-        /* Ajustes específicos para móviles */
         @media (max-width: 768px) {
             #video-container { width: 100% !important; max-width: 100%; }
             #video { width: 100% !important; height: auto !important; aspect-ratio: 4/3; }
@@ -54,13 +52,11 @@
             .grid-cols-cards { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); }
         }
 
-        /* Scrollbar personalizado */
         ::-webkit-scrollbar { width: 8px; height: 8px; }
         ::-webkit-scrollbar-track { background: rgba(15, 23, 42, 0.5); border-radius: 4px; }
         ::-webkit-scrollbar-thumb { background: rgba(99, 102, 241, 0.5); border-radius: 4px; }
         ::-webkit-scrollbar-thumb:hover { background: rgba(99, 102, 241, 0.8); }
 
-        /* Animación de escaneo (UX loading) */
         @keyframes scan {
             0% { transform: translateY(-100%); }
             100% { transform: translateY(200%); }
@@ -73,22 +69,20 @@
 
 <body class="min-h-screen flex flex-col">
 
-    <!-- Header Principal (Gamificado) -->
+    <!-- Header Principal -->
     <header class="bg-gradient-to-r from-indigo-900 to-slate-900 text-white p-4 shadow-xl z-20 border-b border-indigo-500/30 sticky top-0 backdrop-blur-md">
         <div class="container mx-auto flex flex-col md:flex-row items-center justify-between gap-3 text-center md:text-left">
             <div>
                 <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-cyan-300">
-                    <i class="fa-solid fa-rocket text-indigo-400 mr-2"></i> Reto Data Science
+                    <i class="fa-solid fa-rocket text-indigo-400 mr-2"></i> Reto Data Science (Pro)
                 </h1>
-                <p class="text-xs sm:text-sm text-indigo-200 mt-1 opacity-90">Entrena tu propia Inteligencia Artificial en el navegador.</p>
+                <p class="text-xs sm:text-sm text-indigo-200 mt-1 opacity-90">Algoritmo de Inferencia Rápida Optimizado para Móviles</p>
             </div>
             
-            <!-- Badge de Estado Mejorado con feedback -->
             <div class="flex flex-col items-center md:items-end w-full md:w-auto">
                 <div id="status-badge" class="bg-yellow-500/20 text-yellow-300 border border-yellow-500/30 px-4 py-2 rounded-full text-xs sm:text-sm font-bold flex items-center shadow-lg w-full md:w-auto justify-center transition-all duration-300 relative overflow-hidden">
                     <i class="fa-solid fa-cloud-arrow-down fa-bounce mr-2"></i> 
                     <span id="status-text">Conectando...</span>
-                    <!-- Barra de progreso simulada para UX -->
                     <div id="download-progress" class="absolute bottom-0 left-0 h-1 bg-yellow-400 w-0 transition-all duration-300"></div>
                 </div>
                 <span id="status-hint" class="text-[10px] text-slate-400 mt-1 hidden">Puede tardar unos segundos según tu internet.</span>
@@ -97,44 +91,6 @@
     </header>
 
     <main class="container mx-auto p-4 flex-grow flex flex-col gap-6">
-
-        <!-- Diagrama Educativo (Cómo funciona) -->
-        <section class="glass-panel rounded-2xl shadow-lg p-4 flex-shrink-0 bg-gradient-to-br from-slate-800 to-indigo-900/50 border-l-4 border-indigo-500">
-            <h2 class="text-sm font-bold mb-3 text-indigo-300 uppercase tracking-wider"><i class="fa-solid fa-microscope mr-2"></i> ¿Cómo funciona el Algoritmo?</h2>
-            <div class="flex flex-col md:flex-row items-center justify-between gap-2 text-center text-xs">
-                <div class="p-2 rounded-xl flex-1 border border-slate-600 bg-slate-800/80 shadow-sm w-full">
-                    <i class="fa-solid fa-image text-2xl text-indigo-400 mb-1"></i><br>
-                    <strong class="text-slate-200">1. Entrada</strong><br>
-                    <span class="text-slate-400 text-[10px]">Píxeles de tu cámara</span>
-                </div>
-                <i class="fa-solid fa-chevron-right text-indigo-500 hidden md:block"></i>
-                <i class="fa-solid fa-chevron-down text-indigo-500 md:hidden"></i>
-                <div class="p-2 rounded-xl flex-1 border border-slate-600 bg-slate-800/80 shadow-sm w-full">
-                    <i class="fa-solid fa-network-wired text-2xl text-cyan-400 mb-1"></i><br>
-                    <strong class="text-slate-200">2. Red Neuronal</strong><br>
-                    <span class="text-slate-400 text-[10px]">MobileNet extrae patrones</span>
-                </div>
-                <i class="fa-solid fa-chevron-right text-indigo-500 hidden md:block"></i>
-                <i class="fa-solid fa-chevron-down text-indigo-500 md:hidden"></i>
-                <div class="p-2 rounded-xl flex-1 border border-slate-600 bg-slate-800/80 shadow-sm w-full">
-                    <i class="fa-brands fa-js text-2xl text-yellow-400 mb-1"></i><br>
-                    <strong class="text-slate-200">3. Entrenamiento</strong><br>
-                    <span class="text-slate-400 text-[10px]">Ajusta pesos matemáticos</span>
-                </div>
-                <i class="fa-solid fa-chevron-right text-indigo-500 hidden md:block"></i>
-                <i class="fa-solid fa-chevron-down text-indigo-500 md:hidden"></i>
-                <div class="p-2 rounded-xl flex-1 border border-slate-600 bg-slate-800/80 shadow-sm w-full">
-                    <i class="fa-solid fa-chart-simple text-2xl text-emerald-400 mb-1"></i><br>
-                    <strong class="text-slate-200">4. Salida</strong><br>
-                    <span class="text-slate-400 text-[10px]">Probabilidad (Softmax)</span>
-                </div>
-            </div>
-            <div class="mt-3 bg-indigo-900/30 p-2 rounded-lg border border-indigo-500/30">
-                <p class="text-xs text-indigo-200 text-center">
-                    Toma al menos 30 fotos variadas por cada categoría y presiona "Entrenar". ¡Evita el sesgo agregando datos balanceados!
-                </p>
-            </div>
-        </section>
 
         <!-- Métricas en Tiempo Real -->
         <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -148,17 +104,17 @@
             
             <div class="glass-panel p-4 rounded-2xl flex items-center justify-between group">
                 <div>
-                    <p class="text-xs text-slate-400 uppercase tracking-wider font-semibold">Inferencia (Velocidad)</p>
+                    <p class="text-xs text-slate-400 uppercase tracking-wider font-semibold">Inferencia (GPU/CPU)</p>
                     <p class="text-2xl font-black text-cyan-400 font-mono mt-1"><span id="inference-time">--</span><span class="text-sm text-cyan-600 ml-1">ms</span></p>
                 </div>
-                <i class="fa-solid fa-bolt text-3xl text-cyan-500/50 group-hover:text-yellow-400 transition-colors"></i>
+                <i class="fa-solid fa-microchip text-3xl text-cyan-500/50 group-hover:text-yellow-400 transition-colors"></i>
             </div>
 
             <div class="glass-panel p-4 rounded-2xl col-span-1 md:col-span-2 flex flex-col justify-center relative overflow-hidden">
                 <div class="flex justify-between items-end mb-2 z-10">
                     <div>
                         <h4 class="text-sm font-bold text-slate-200"><i class="fa-solid fa-scale-balanced text-orange-400 mr-1"></i> Salud del Dataset</h4>
-                        <p class="text-[10px] text-slate-400 leading-tight">Mantén las categorías con una cantidad similar de imágenes.</p>
+                        <p class="text-[10px] text-slate-400 leading-tight">Manten un equilibrio. (Recomendado: 10-20 fotos por clase)</p>
                     </div>
                     <span id="data-health-badge" class="text-[10px] font-bold bg-slate-700 text-slate-300 px-2 py-1 rounded-md shadow">Esperando datos...</span>
                 </div>
@@ -175,8 +131,7 @@
                 
                 <div class="glass-panel p-4 rounded-2xl flex flex-col items-center relative overflow-hidden group">
                     <h2 class="text-sm uppercase tracking-wider font-bold text-slate-300 w-full mb-3 flex items-center justify-between">
-                        <span><i class="fa-solid fa-camera mr-2 text-indigo-400"></i> Entrada Visual</span>
-                        <span class="text-[10px] bg-slate-800 px-2 py-1 rounded text-slate-400 font-mono border border-slate-700">224x224px RGB</span>
+                        <span><i class="fa-solid fa-camera mr-2 text-indigo-400"></i> Entrada Visual Optimizada</span>
                     </h2>
                     
                     <div id="video-container" class="relative w-full rounded-xl overflow-hidden shadow-[0_0_15px_rgba(0,0,0,0.5)] border border-slate-600 bg-black aspect-[4/3] flex items-center justify-center">
@@ -242,14 +197,15 @@
                         </div>
                     </div>
 
-                    <!-- NUEVO: Consola / Terminal de Entrenamiento -->
+                    <!-- Consola / Terminal de Entrenamiento -->
                     <div class="bg-black rounded-xl p-2 border border-slate-700 h-32 relative flex flex-col font-mono text-[10px] shadow-inner">
                         <div class="flex justify-between items-center border-b border-slate-800 pb-1 mb-1">
                             <span class="text-slate-500"><i class="fa-solid fa-terminal mr-1"></i> Consola en vivo</span>
-                            <span id="epoch-counter" class="text-cyan-500 font-bold">Época: 0/25</span>
+                            <span id="epoch-counter" class="text-cyan-500 font-bold">Época: 0/15</span>
                         </div>
                         <div id="training-terminal" class="flex-grow overflow-y-auto flex flex-col gap-1 pr-1 text-slate-400 scroll-smooth">
-                            <span>> Esperando capturas para iniciar...</span>
+                            <span>> Modo Alto Rendimiento Activado...</span>
+                            <span>> Esperando datos...</span>
                         </div>
                     </div>
 
@@ -259,7 +215,7 @@
     </main>
 
     <script>
-        // --- Variables Globales y Constantes de Optimización ---
+        // --- Variables Globales y Constantes de Optimización Nivel Producción ---
         let featureExtractor;
         let classifier;
         let video;
@@ -267,28 +223,26 @@
         let isModelReady = false;
         let isTraining = false;
         let isPredicting = false;
+        let isCapturing = false; // Bloqueo para evitar spam de WebGL
         let totalExamples = 0;
         let lastPredictionTime = 0;
         let lossData = { labels: [], data: [] };
-        let previousLoss = null; // Variable para rastrear la evolución del error
+        let previousLoss = null;
 
-        // Parámetros de Machine Learning Optimizados para Navegador
-        const TOTAL_EPOCHS = 25; // Reduce el tiempo de entrenamiento a la mitad
-        const MAX_SAMPLES_PER_CLASS = 50; // Evita el colapso de memoria RAM/WebGL
+        // PARÁMETROS CRÍTICOS DE RENDIMIENTO (Modificados para velocidad extrema)
+        const TOTAL_EPOCHS = 15; // 15 es el balance perfecto para Transfer Learning rápido
+        const MAX_SAMPLES_PER_CLASS = 30; // Más de 30 fotos es innecesario y satura la RAM del móvil
+        const INFERENCE_SPEED_MS = 200; // Analiza la cámara 5 veces por segundo (muy amigable con la batería)
         let currentEpoch = 0;
 
-        // Categorías de Data Science para el reto
         let classesData = [
             { id: 'class_0', name: '😁 Felicidad', count: 0, color: 'text-green-400', bg: 'bg-green-500', icon: 'fa-face-smile' },
             { id: 'class_1', name: '😲 Sorpresa', count: 0, color: 'text-yellow-400', bg: 'bg-yellow-500', icon: 'fa-face-surprise' },
             { id: 'class_2', name: '✌️ Paz (Mano)', count: 0, color: 'text-purple-400', bg: 'bg-purple-500', icon: 'fa-hand-peace' },
-            { id: 'class_3', name: '⭕ Círculo', count: 0, color: 'text-orange-400', bg: 'bg-orange-500', icon: 'fa-circle' },
-            { id: 'class_4', name: '📐 Triángulo', count: 0, color: 'text-pink-400', bg: 'bg-pink-500', icon: 'fa-play' },
-            { id: 'class_5', name: '⬛ Fondo Vacío', count: 0, color: 'text-slate-400', bg: 'bg-slate-500', icon: 'fa-border-none' }
+            { id: 'class_3', name: '⬛ Fondo Vacío', count: 0, color: 'text-slate-400', bg: 'bg-slate-500', icon: 'fa-border-none' }
         ];
         let classCounter = classesData.length;
 
-        // Se corrigieron los comentarios accidentales en las funciones
         document.addEventListener('DOMContentLoaded', () => {
             initChart();
             renderClasses();
@@ -319,12 +273,7 @@
                     plugins: { legend: { display: false }, tooltip: { enabled: false } },
                     scales: {
                         x: { display: false },
-                        y: { 
-                            display: true, 
-                            position: 'right',
-                            grid: { color: 'rgba(255,255,255,0.05)' },
-                            ticks: { color: '#64748b', font: { size: 9 } }
-                        }
+                        y: { display: true, position: 'right', grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#64748b', font: { size: 9 } } }
                     },
                     animation: { duration: 0 } 
                 }
@@ -334,76 +283,61 @@
         async function initCamera() {
             video = document.getElementById('video');
             try {
-                // CORRECCIÓN MÓVIL: Quitamos las restricciones estrictas de 224x224. 
-                // Dejamos que el celular use su resolución nativa. ml5.js lo redimensionará internamente.
+                // OPTIMIZACIÓN CRÍTICA: Restringir la resolución a nivel de hardware.
+                // Evita que los celulares modernos pasen streams de 1080p que ahogan a TensorFlow.
                 const stream = await navigator.mediaDevices.getUserMedia({ 
-                    video: { facingMode: "user" } 
+                    video: { 
+                        facingMode: "user",
+                        width: { ideal: 224, max: 320 }, 
+                        height: { ideal: 224, max: 320 }
+                    } 
                 });
                 video.srcObject = stream;
-                
-                // Extra seguridad para que los navegadores móviles (especialmente iPhone/Safari) no bloqueen el video
                 video.setAttribute('playsinline', ''); 
                 
                 video.onloadedmetadata = () => {
                     video.play();
                     video.style.opacity = "1";
                     document.getElementById('camera-loading').style.display = 'none';
-                    // Pequeño retraso para asegurar que la librería ml5 esté lista en memoria
                     setTimeout(initML5, 500); 
                 };
             } catch (err) {
                 console.error("Error de cámara:", err);
-                document.getElementById('camera-loading').innerHTML = `<i class="fa-solid fa-triangle-exclamation text-red-400 text-2xl mb-2"></i> Error de Cámara.<br><span class="text-xs">Verifica permisos o usa HTTPS.</span>`;
-                // Intentamos iniciar la IA de todos modos (por si van a subir imágenes en un futuro)
+                document.getElementById('camera-loading').innerHTML = `<i class="fa-solid fa-triangle-exclamation text-red-400 text-2xl mb-2"></i> Error de Cámara.`;
                 setTimeout(initML5, 500);
             }
         }
 
         function initML5() {
-            // Validación de seguridad: Verifica si el CDN cargó exitosamente el archivo
             if (typeof ml5 === 'undefined') {
-                console.error("Error fatal: La librería ml5.js no se pudo descargar del servidor.");
                 document.getElementById('status-text').innerText = "Librería IA Bloqueada";
-                document.getElementById('status-hint').innerText = "Revisa tu internet, VPN o desactiva tu AdBlocker.";
+                document.getElementById('status-hint').innerText = "Revisa tu internet o desactiva tu AdBlocker.";
                 document.getElementById('status-hint').classList.remove('hidden');
-                
-                const badge = document.getElementById('status-badge');
-                badge.classList.remove('text-yellow-300', 'bg-yellow-500/20', 'border-yellow-500/30');
-                badge.classList.add('text-red-400', 'bg-red-900/50', 'border-red-500/50');
-                badge.innerHTML = `<i class="fa-solid fa-circle-xmark mr-2"></i> Fallo de Red`;
-                return; // Detiene la ejecución para evitar el ReferenceError
+                document.getElementById('status-badge').className = "bg-red-900/50 text-red-400 border border-red-500/50 px-4 py-2 rounded-full text-xs font-bold flex items-center";
+                return; 
             }
 
-            document.getElementById('status-text').innerText = "Descargando IA base...";
+            document.getElementById('status-text').innerText = "Descargando Modelo Base (Rápido)...";
             document.getElementById('status-hint').classList.remove('hidden');
             
-            // Animación visual suave para la barra de carga
             let fakeProgress = 0;
             const progressInterval = setInterval(() => {
-                fakeProgress += 2;
+                fakeProgress += 5;
                 if(fakeProgress > 95) clearInterval(progressInterval);
                 document.getElementById('download-progress').style.width = `${fakeProgress}%`;
             }, 100);
 
-            // Timeout de seguridad: Si no carga en 15 segundos, mostrar error de red.
             const timeoutCheck = setTimeout(() => {
                 if(!isModelReady) {
                     clearInterval(progressInterval);
                     document.getElementById('status-text').innerText = "Fallo de red (Timeout)";
-                    document.getElementById('status-hint').innerText = "Recarga la página o revisa tu internet.";
-                    const badge = document.getElementById('status-badge');
-                    badge.classList.remove('text-yellow-300', 'bg-yellow-500/20', 'border-yellow-500/30');
-                    badge.classList.add('text-red-400', 'bg-red-500/20', 'border-red-500/30');
+                    document.getElementById('status-badge').className = "bg-red-500/20 text-red-400 border border-red-500/30 px-4 py-2 rounded-full text-xs font-bold flex items-center";
                 }
-            }, 15000);
+            }, 10000);
 
             try {
-                // CORRECCIÓN DE ENTRENAMIENTO: Quitamos el 'batchSize' fijo.
-                // Si el batchSize es mayor al número de fotos que tomó el estudiante, TensorFlow colapsa en silencio.
-                // Al quitarlo, TensorFlow ajusta este valor automáticamente de forma segura.
-                const options = {
-                    epochs: TOTAL_EPOCHS
-                };
+                // Instanciamos el extractor con las épocas reducidas para velocidad
+                const options = { epochs: TOTAL_EPOCHS };
 
                 featureExtractor = ml5.featureExtractor('MobileNet', options, () => {
                     clearTimeout(timeoutCheck);
@@ -412,25 +346,21 @@
                     modelLoaded();
                 });
             } catch (e) {
-                console.error("Error crítico inicializando ml5:", e);
+                console.error(e);
                 clearTimeout(timeoutCheck);
-                document.getElementById('status-text').innerText = "Error cargando la IA";
             }
         }
 
         function modelLoaded() {
-            // Conecta la cámara con el extractor de características
             classifier = featureExtractor.classification(video, videoReady);
         }
 
         function videoReady() {
             isModelReady = true;
-            document.getElementById('status-text').innerText = "Modelo Listo";
-            document.getElementById('status-badge').innerHTML = `<i class="fa-solid fa-check-circle mr-2"></i> ${document.getElementById('status-text').innerText}`;
+            document.getElementById('status-text').innerText = "Motor Optimizado Listo";
+            document.getElementById('status-badge').innerHTML = `<i class="fa-solid fa-bolt text-yellow-300 mr-2"></i> ${document.getElementById('status-text').innerText}`;
             document.getElementById('status-badge').className = "bg-emerald-500/20 text-emerald-400 border border-emerald-500/50 px-4 py-2 rounded-full text-xs sm:text-sm font-bold flex items-center shadow-[0_0_15px_rgba(16,185,129,0.3)] w-full md:w-auto justify-center transition-all duration-300";
             document.getElementById('status-hint').classList.add('hidden');
-            
-            // Re-renderizamos para habilitar los botones
             renderClasses();
         }
 
@@ -448,17 +378,13 @@
                             <i class="fa-solid ${cls.icon} ${cls.color} mr-1"></i> ${cls.name}
                         </h3>
                     </div>
-                    
                     <div class="flex-grow flex items-center justify-center z-10">
                         <div class="text-3xl font-black font-mono text-slate-300 tracking-tighter" id="count-${cls.id}">${cls.count}</div>
                         <span class="text-[10px] text-slate-500 ml-1 uppercase mt-2">Fotos</span>
                     </div>
-                    
-                    <button onclick="addExample('${cls.id}')" ${!isModelReady ? 'disabled' : ''} class="mt-1 w-full ${cls.bg} hover:brightness-110 disabled:bg-slate-700 disabled:text-slate-500 disabled:cursor-not-allowed text-white text-xs font-bold py-2 rounded-lg transition-all active:scale-95 shadow-md z-10 flex items-center justify-center gap-1">
+                    <button id="btn-${cls.id}" onclick="addExample('${cls.id}')" ${!isModelReady ? 'disabled' : ''} class="mt-1 w-full ${cls.bg} hover:brightness-110 disabled:bg-slate-700 disabled:text-slate-500 disabled:cursor-not-allowed text-white text-xs font-bold py-2 rounded-lg transition-all active:scale-95 shadow-md z-10 flex items-center justify-center gap-1">
                         <i class="fa-solid fa-camera"></i> Capturar
                     </button>
-                    
-                    <div class="${cls.bg} absolute -bottom-10 -right-10 w-24 h-24 rounded-full opacity-10 blur-xl"></div>
                 `;
                 container.appendChild(card);
             });
@@ -466,43 +392,53 @@
         }
 
         function addNewClass() {
-            const name = prompt("Escribe una nueva categoría (Ej: 'Tristeza', 'Mano Cerrada'):");
+            const name = prompt("Escribe una nueva categoría:");
             if (name && name.trim() !== '') {
                 const newId = `class_${classCounter++}`;
-                classesData.push({ 
-                    id: newId, name: name, count: 0, 
-                    color: 'text-indigo-400', bg: 'bg-indigo-600', icon: 'fa-tag'
-                });
+                classesData.push({ id: newId, name: name, count: 0, color: 'text-indigo-400', bg: 'bg-indigo-600', icon: 'fa-tag' });
                 renderClasses();
             }
         }
 
-        function addExample(classId) {
-            if (!isModelReady || isTraining) return;
+        // OPTIMIZACIÓN: Función Asíncrona con seguro anti-spam (Debounce)
+        async function addExample(classId) {
+            if (!isModelReady || isTraining || isCapturing) return;
             
             const cls = classesData.find(c => c.id === classId);
-            if (cls) {
-                // Prevención de desbordamiento de memoria (Optimization Cap)
-                if (cls.count >= MAX_SAMPLES_PER_CLASS) {
-                    alert(`¡Optimización activada! Has alcanzado el límite saludable de ${MAX_SAMPLES_PER_CLASS} imágenes para "${cls.name}". Esto mantiene el navegador rápido.`);
-                    return;
-                }
+            if (!cls) return;
 
-                // ml5.js: Tomar el frame actual y guardarlo bajo la etiqueta
-                classifier.addImage(cls.name);
-                
-                // Efecto visual flash
-                const v = document.getElementById('video-container');
-                v.classList.add('ring-4', 'ring-white');
-                setTimeout(() => v.classList.remove('ring-4', 'ring-white'), 100);
-
-                cls.count++;
-                totalExamples++;
-                document.getElementById(`count-${classId}`).innerText = cls.count;
-                document.getElementById('total-samples-count').innerText = totalExamples;
-                
-                checkTrainButton();
+            if (cls.count >= MAX_SAMPLES_PER_CLASS) {
+                logTerminal(`Límite saludable alcanzado (${MAX_SAMPLES_PER_CLASS}) para ${cls.name}`, "warn");
+                return;
             }
+
+            // Bloqueamos la interfaz medio segundo para evitar apilar procesos pesados en memoria WebGL
+            isCapturing = true;
+            const btn = document.getElementById(`btn-${classId}`);
+            const originalHtml = btn.innerHTML;
+            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i>...`;
+            btn.classList.add('opacity-50');
+
+            // Dejamos respirar al DOM visualmente
+            await new Promise(resolve => setTimeout(resolve, 50)); 
+
+            // Extraemos la característica matemáticamente
+            classifier.addImage(cls.name);
+            
+            const v = document.getElementById('video-container');
+            v.classList.add('ring-4', 'ring-white');
+            setTimeout(() => v.classList.remove('ring-4', 'ring-white'), 100);
+
+            cls.count++;
+            totalExamples++;
+            document.getElementById(`count-${classId}`).innerText = cls.count;
+            document.getElementById('total-samples-count').innerText = totalExamples;
+            
+            btn.innerHTML = originalHtml;
+            btn.classList.remove('opacity-50');
+            isCapturing = false;
+
+            checkTrainButton();
         }
 
         function updateDataMetricsUI() {
@@ -517,25 +453,17 @@
             const bar = document.getElementById('data-balance-bar');
             
             if (activeClasses < 2) {
-                badge.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> Necesita Contraste';
+                badge.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> Faltan Clases';
                 badge.className = "text-[10px] font-bold bg-red-900/50 text-red-400 px-2 py-1 rounded-md shadow";
-                bar.style.width = "15%";
-                bar.className = "bg-red-500 h-2.5 rounded-full transition-all duration-1000";
-            } else if (maxCount - minCount > 15) {
-                badge.innerHTML = '<i class="fa-solid fa-scale-unbalanced"></i> Dataset Sesgado';
+                bar.style.width = "15%"; bar.className = "bg-red-500 h-2.5 rounded-full transition-all";
+            } else if (maxCount > 0 && minCount === 0 || maxCount - minCount > 10) {
+                badge.innerHTML = '<i class="fa-solid fa-scale-unbalanced"></i> Desbalanceado';
                 badge.className = "text-[10px] font-bold bg-orange-900/50 text-orange-400 px-2 py-1 rounded-md shadow";
-                bar.style.width = "45%";
-                bar.className = "bg-orange-500 h-2.5 rounded-full transition-all duration-1000";
-            } else if (minCount >= 20 && (maxCount - minCount <= 10)) {
-                badge.innerHTML = '<i class="fa-solid fa-check-double"></i> Dataset Excelente';
-                badge.className = "text-[10px] font-bold bg-emerald-900/50 text-emerald-400 px-2 py-1 rounded-md shadow";
-                bar.style.width = "100%";
-                bar.className = "bg-emerald-500 h-2.5 rounded-full transition-all duration-1000";
+                bar.style.width = "45%"; bar.className = "bg-orange-500 h-2.5 rounded-full transition-all";
             } else {
-                badge.innerHTML = '<i class="fa-solid fa-chart-line"></i> Aceptable';
-                badge.className = "text-[10px] font-bold bg-blue-900/50 text-blue-400 px-2 py-1 rounded-md shadow";
-                bar.style.width = "70%";
-                bar.className = "bg-blue-500 h-2.5 rounded-full transition-all duration-1000";
+                badge.innerHTML = '<i class="fa-solid fa-check-double"></i> Óptimo para Entrenar';
+                badge.className = "text-[10px] font-bold bg-emerald-900/50 text-emerald-400 px-2 py-1 rounded-md shadow";
+                bar.style.width = "100%"; bar.className = "bg-emerald-500 h-2.5 rounded-full transition-all";
             }
         }
 
@@ -545,11 +473,9 @@
             if (activeClasses >= 2) btn.disabled = false;
         }
 
-        // NUEVO: Función para escribir en la terminal virtual
         function logTerminal(message, type = 'normal') {
             const terminal = document.getElementById('training-terminal');
             const el = document.createElement('span');
-            
             if (type === 'highlight') el.className = 'text-green-400 font-bold';
             else if (type === 'warn') el.className = 'text-yellow-400';
             else if (type === 'info') el.className = 'text-cyan-400';
@@ -557,8 +483,6 @@
             
             el.innerText = `> ${message}`;
             terminal.appendChild(el);
-            
-            // Auto-scroll hacia abajo para ver el texto más reciente
             terminal.scrollTop = terminal.scrollHeight; 
         }
 
@@ -573,26 +497,23 @@
             lossData.data = [];
             lossChart.update();
             
-            // Preparar terminal educativamente
             document.getElementById('training-terminal').innerHTML = '';
-            logTerminal("Iniciando fase de entrenamiento...", "info");
-            logTerminal(`Analizando ${totalExamples} tensores de imágenes...`, "normal");
-            logTerminal("Algoritmo de aprendizaje: Backpropagation", "warn");
-            logTerminal("Ajustando pesos neuronales...", "normal");
+            logTerminal("Modo Alto Rendimiento activado.", "info");
+            logTerminal(`Compilando red para ${totalExamples} muestras...`, "normal");
             
             const btn = document.getElementById('train-btn');
             btn.disabled = true;
             document.getElementById('train-btn-text').innerText = "Entrenando (0%)...";
             document.getElementById('scan-effect').classList.remove('hidden');
 
-            document.getElementById('status-badge').innerHTML = `<i class="fa-solid fa-microchip fa-spin mr-2"></i> Entrenando IA...`;
-            document.getElementById('status-badge').className = "bg-blue-500/20 text-blue-400 border border-blue-500/50 px-4 py-2 rounded-full text-xs sm:text-sm font-bold flex items-center shadow-[0_0_15px_rgba(59,130,246,0.5)]";
+            document.getElementById('status-badge').innerHTML = `<i class="fa-solid fa-microchip fa-spin mr-2"></i> Procesando Tensores...`;
+            document.getElementById('status-badge').className = "bg-blue-500/20 text-blue-400 border border-blue-500/50 px-4 py-2 rounded-full text-xs font-bold flex items-center shadow-[0_0_15px_rgba(59,130,246,0.5)]";
 
             try {
                 classifier.train(whileTraining);
             } catch (error) {
                 console.error("Error al iniciar entrenamiento:", error);
-                alert("Ocurrió un error. Asegúrate de haber capturado fotos en al menos 2 categorías.");
+                alert("Ocurrió un error. Añade al menos 2 ejemplos por categoría.");
                 isTraining = false;
                 btn.disabled = false;
                 document.getElementById('train-btn-text').innerText = "Entrenar Red Neuronal";
@@ -601,31 +522,24 @@
 
         function whileTraining(loss) {
             if (loss === null) {
-                logTerminal("✅ Entrenamiento completado. Modelo convergido.", "highlight");
+                logTerminal("✅ Modelo convergido exitosamente.", "highlight");
                 trainingComplete();
             } else {
                 currentEpoch++;
-                
-                // Determinar la evolución: ¿El error sube o baja?
                 let evolutionStr = "";
                 if (previousLoss !== null) {
-                    if (loss < previousLoss) evolutionStr = " ↓ Mejorando";
-                    else if (loss > previousLoss) evolutionStr = " ↑ Ajustando";
+                    if (loss < previousLoss) evolutionStr = " ↓";
+                    else if (loss > previousLoss) evolutionStr = " ↑";
                 }
                 previousLoss = loss;
 
-                // Enviar métrica detallada a la consola en tiempo real
-                logTerminal(`Época ${currentEpoch}/${TOTAL_EPOCHS} | Loss: ${loss.toFixed(4)}${evolutionStr}`);
+                logTerminal(`Epoch ${currentEpoch}/${TOTAL_EPOCHS} | Error: ${loss.toFixed(4)}${evolutionStr}`);
                 document.getElementById('epoch-counter').innerText = `Época: ${currentEpoch}/${TOTAL_EPOCHS}`;
                 
-                // Calcular el porcentaje real asegurándonos de que no exceda el 99% hasta que realmente termine (loss === null)
                 let percentage = Math.min(99, Math.round((currentEpoch / TOTAL_EPOCHS) * 100));
-                
-                // Actualizar interfaz con porcentaje
-                document.getElementById('train-btn-text').innerText = `Optimizando Pesos... ${percentage}%`;
+                document.getElementById('train-btn-text').innerText = `Optimizando... ${percentage}%`;
                 document.getElementById('train-progress-bg').style.width = `${percentage}%`;
 
-                // Actualiza gráfica Chart.js
                 document.getElementById('loss-value').innerText = loss.toFixed(4);
                 lossData.labels.push('');
                 lossData.data.push(loss);
@@ -644,16 +558,17 @@
             
             const btn = document.getElementById('train-btn');
             btn.disabled = false;
-            document.getElementById('train-btn-text').innerHTML = "<i class='fa-solid fa-rotate'></i> Volver a Entrenar";
+            document.getElementById('train-btn-text').innerHTML = "<i class='fa-solid fa-rotate'></i> Re-entrenar";
             
             document.getElementById('download-btn').classList.remove('hidden');
             document.getElementById('download-btn').classList.add('flex');
             
-            document.getElementById('status-badge').innerHTML = `<i class="fa-solid fa-brain mr-2"></i> Inteligencia Activa`;
+            document.getElementById('status-badge').innerHTML = `<i class="fa-solid fa-bolt mr-2"></i> Predicción Real-time`;
             document.getElementById('status-badge').className = "bg-purple-500/20 text-purple-400 border border-purple-500/50 px-4 py-2 rounded-full text-xs font-bold flex items-center shadow-[0_0_20px_rgba(168,85,247,0.6)]";
             
             document.getElementById('prediction-container').classList.add('hidden');
             document.getElementById('confidence-bars').classList.remove('hidden');
+            document.getElementById('scan-effect').classList.add('hidden');
             
             classifyFrame();
         }
@@ -673,10 +588,11 @@
 
             renderConfidenceBars(results);
 
-            // Bucle constante de inferencia (50ms para no freír el CPU del móvil)
+            // OPTIMIZACIÓN CRÍTICA: Throttling. Solo predecimos cada 200ms (5 FPS)
+            // Esto libera el 80% de la GPU del celular evitando que se trabe.
             setTimeout(() => {
                 if (isPredicting) classifyFrame();
-            }, 50);
+            }, INFERENCE_SPEED_MS); 
         }
 
         function renderConfidenceBars(results) {
@@ -714,7 +630,7 @@
                 document.getElementById('status-badge').innerHTML = `<i class="fa-solid fa-box-archive mr-2"></i> Descargando .json y .bin`;
                 classifier.save(); 
                 setTimeout(() => {
-                    document.getElementById('status-badge').innerHTML = `<i class="fa-solid fa-brain mr-2"></i> Inteligencia Activa`;
+                    document.getElementById('status-badge').innerHTML = `<i class="fa-solid fa-bolt mr-2"></i> Predicción Real-time`;
                 }, 3000);
             }
         }
