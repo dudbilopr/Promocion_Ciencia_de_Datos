@@ -320,11 +320,16 @@
         async function initCamera() {
             video = document.getElementById('video');
             try {
-                // Resolución baja e ideal para redes neuronales móviles
+                // CORRECCIÓN MÓVIL: Quitamos las restricciones estrictas de 224x224. 
+                // Dejamos que el celular use su resolución nativa. ml5.js lo redimensionará internamente.
                 const stream = await navigator.mediaDevices.getUserMedia({ 
-                    video: { facingMode: "user", width: 224, height: 224 } 
+                    video: { facingMode: "user" } 
                 });
                 video.srcObject = stream;
+                
+                // Extra seguridad para que los navegadores móviles (especialmente iPhone/Safari) no bloqueen el video
+                video.setAttribute('playsinline', ''); 
+                
                 video.onloadedmetadata = () => {
                     video.play();
                     video.style.opacity = "1";
@@ -379,10 +384,11 @@
             }, 15000);
 
             try {
-                // Configuramos los hiperparámetros para un entrenamiento más rápido y optimizado
+                // CORRECCIÓN DE ENTRENAMIENTO: Quitamos el 'batchSize' fijo.
+                // Si el batchSize es mayor al número de fotos que tomó el estudiante, TensorFlow colapsa en silencio.
+                // Al quitarlo, TensorFlow ajusta este valor automáticamente de forma segura.
                 const options = {
-                    epochs: TOTAL_EPOCHS,
-                    batchSize: 16 // Procesa imágenes en lotes pequeños, ideal para celulares
+                    epochs: TOTAL_EPOCHS
                 };
 
                 featureExtractor = ml5.featureExtractor('MobileNet', options, () => {
@@ -560,8 +566,8 @@
             } else {
                 currentEpoch++;
                 
-                // Calcular el porcentaje real basado en las épocas completadas
-                let percentage = Math.round((currentEpoch / TOTAL_EPOCHS) * 100);
+                // Calcular el porcentaje real asegurándonos de que no exceda el 99% hasta que realmente termine (loss === null)
+                let percentage = Math.min(99, Math.round((currentEpoch / TOTAL_EPOCHS) * 100));
                 
                 // Actualizar interfaz con porcentaje
                 document.getElementById('train-btn-text').innerText = `Optimizando Pesos... ${percentage}%`;
