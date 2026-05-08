@@ -269,7 +269,8 @@
         ];
         let classCounter = classesData.length;
 
-        //        document.addEventListener('DOMContentLoaded', () => {
+        // Se corrigieron los comentarios accidentales en las funciones
+        document.addEventListener('DOMContentLoaded', () => {
             initChart();
             renderClasses();
             initCamera();
@@ -311,7 +312,7 @@
             });
         }
 
-        //        async function initCamera() {
+        async function initCamera() {
             video = document.getElementById('video');
             try {
                 // Resolución baja e ideal para redes neuronales móviles
@@ -357,7 +358,6 @@
             }, 15000);
 
             try {
-                // FIX: Eliminamos el objeto de "options" defectuoso que rompía la inicialización internamente.
                 // Usamos la configuración estándar y probada de ml5.js.
                 featureExtractor = ml5.featureExtractor('MobileNet', () => {
                     clearTimeout(timeoutCheck);
@@ -388,7 +388,7 @@
             renderClasses();
         }
 
-        //        function renderClasses() {
+        function renderClasses() {
             const container = document.getElementById('classes-container');
             container.innerHTML = '';
             
@@ -453,7 +453,7 @@
             }
         }
 
-        //        function updateDataMetricsUI() {
+        function updateDataMetricsUI() {
             if (totalExamples === 0) return;
             
             let counts = classesData.map(c => c.count);
@@ -493,7 +493,7 @@
             if (activeClasses >= 2) btn.disabled = false;
         }
 
-        //        function startTraining() {
+        function startTraining() {
             if (isTraining) return;
             isTraining = true;
             isPredicting = false;
