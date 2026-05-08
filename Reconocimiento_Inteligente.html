@@ -2,169 +2,225 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Entrenador de IA: Rostros, Manos y Formas</title>
-    <!-- Tailwind CSS para el diseño -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Reto Data Science: Entrena tu IA</title>
+    
+    <!-- Tailwind CSS para estilos rápidos y responsivos -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- ml5.js para el Machine Learning -->
-    <script src="https://unpkg.com/ml5@0.12.2/dist/ml5.min.js"></script>
-    <!-- FontAwesome para iconos -->
+    
+    <!-- FontAwesome para iconos profesionales -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Chart.js para gráficos de ciencia de datos -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- ml5.js (TensorFlow.js wrapper) para Machine Learning en el navegador -->
+    <script src="https://unpkg.com/ml5@latest/dist/ml5.min.js"></script>
+
     <style>
-        /* Estilos personalizados para animaciones y scroll */
-        body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Fira+Code:wght@400;600&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0f172a; /* Slate 900 */
+            background-image: 
+                radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%), 
+                radial-gradient(at 50% 0%, hsla(225,39%,30%,0.3) 0, transparent 50%), 
+                radial-gradient(at 100% 0%, hsla(339,49%,30%,0.3) 0, transparent 50%);
+            background-attachment: fixed;
+            color: #e2e8f0;
+            overflow-x: hidden;
+        }
+
+        .font-mono { font-family: 'Fira Code', monospace; }
+
+        /* Efecto Glassmorphism profesional */
         .glass-panel {
-            background: rgba(255, 255, 255, 0.9);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(30, 41, 59, 0.7); /* Slate 800 con opacidad */
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3), inset 0 1px 0 0 rgba(255, 255, 255, 0.05);
         }
-        .capture-flash {
-            animation: flash 0.3s ease-out;
+
+        /* Ajustes específicos para móviles */
+        @media (max-width: 768px) {
+            #video-container { width: 100% !important; max-width: 100%; }
+            #video { width: 100% !important; height: auto !important; aspect-ratio: 4/3; }
+            .grid-cols-cards { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
         }
-        @keyframes flash {
-            0% { background-color: white; opacity: 0.8; }
-            100% { background-color: transparent; opacity: 0; }
+        
+        @media (min-width: 769px) {
+            .grid-cols-cards { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); }
         }
-        .pulse-ring {
-            animation: pulse 2s infinite;
-        }
-        @keyframes pulse {
-            0% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7); }
-            70% { box-shadow: 0 0 0 10px rgba(59, 130, 246, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
-        }
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        /* Scrollbar personalizado */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: rgba(15, 23, 42, 0.5); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb { background: rgba(99, 102, 241, 0.5); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(99, 102, 241, 0.8); }
     </style>
 </head>
-<body class="text-gray-800 h-screen flex flex-col overflow-hidden">
 
-    <header class="bg-indigo-600 text-white p-4 shadow-md z-10">
-        <div class="container mx-auto flex items-center justify-between">
+<body class="min-h-screen flex flex-col">
+
+    <!-- Header Principal -->
+    <header class="bg-gradient-to-r from-indigo-900 to-slate-900 text-white p-4 shadow-xl z-20 border-b border-indigo-500/30 sticky top-0 backdrop-blur-md">
+        <div class="container mx-auto flex flex-col md:flex-row items-center justify-between gap-3 text-center md:text-left">
             <div>
-                <h1 class="text-2xl font-bold"><i class="fa-solid fa-rocket mr-2"></i> Reto Data Science: Entrena tu IA</h1>
-                <p class="text-sm opacity-80">Juega a enseñar a la computadora. ¡Descubre cómo aprenden las máquinas!</p>
+                <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-cyan-300">
+                    <i class="fa-solid fa-brain text-indigo-400 mr-2"></i> Reto Data Science
+                </h1>
+                <p class="text-xs sm:text-sm text-indigo-200 mt-1 opacity-90">Entrena tu propio modelo de Inteligencia Artificial en el navegador.</p>
             </div>
-            <div id="status-badge" class="bg-yellow-400 text-yellow-900 px-3 py-1 rounded-full text-sm font-semibold flex items-center">
-                <i class="fa-solid fa-spinner fa-spin mr-2"></i> Cargando Modelo Base...
+            <div id="status-badge" class="bg-yellow-500/20 text-yellow-300 border border-yellow-500/30 px-4 py-2 rounded-full text-xs sm:text-sm font-bold flex items-center shadow-lg w-full md:w-auto justify-center transition-all duration-300">
+                <i class="fa-solid fa-spinner fa-spin mr-2"></i> Cargando Red Neuronal...
             </div>
         </div>
     </header>
 
-    <main class="flex-1 container mx-auto p-4 flex flex-col lg:flex-row gap-6 overflow-hidden">
-        
-        <!-- Panel Izquierdo: Cámara y Resultados -->
-        <div class="w-full lg:w-1/2 flex flex-col gap-4 h-full">
-            <!-- Contenedor de la Cámara -->
-            <div class="glass-panel rounded-2xl shadow-lg p-4 relative flex-shrink-0">
-                <h2 class="text-lg font-bold mb-2 text-indigo-800"><i class="fa-solid fa-camera mr-2"></i> Visión de la IA</h2>
-                <div class="relative rounded-xl overflow-hidden bg-black aspect-video flex items-center justify-center group">
-                    <video id="webcam" autoplay playsinline muted class="w-full h-full object-cover transform scale-x-[-1]"></video>
-                    <!-- Overlay de flash al capturar -->
-                    <div id="flash-overlay" class="absolute inset-0 pointer-events-none"></div>
-                    <!-- Guías visuales pedagógicas -->
-                    <div class="absolute inset-0 border-2 border-dashed border-indigo-500/30 m-4 rounded-lg pointer-events-none"></div>
-                </div>
-                <p class="text-xs text-gray-500 mt-2 text-center">
-                    La IA extrae mapas de características de esta imagen para encontrar patrones (rostros, manos, bordes).
-                </p>
-            </div>
+    <main class="container mx-auto p-4 flex-grow flex flex-col gap-6">
 
-            <!-- Diagrama Educativo Data Science -->
-            <div class="glass-panel rounded-2xl shadow-lg p-4 flex-shrink-0 bg-gradient-to-br from-indigo-50 to-white">
-                <h2 class="text-lg font-bold mb-3 text-indigo-800"><i class="fa-solid fa-microscope mr-2"></i> ¿Cómo funciona? (El Algoritmo)</h2>
-                <div class="flex flex-col md:flex-row items-center justify-between gap-2 text-center text-xs">
-                    <div class="p-2 rounded-xl flex-1 border border-indigo-100 bg-white shadow-sm w-full">
-                        <i class="fa-solid fa-image text-2xl text-indigo-500 mb-1"></i><br>
-                        <strong class="text-gray-800">1. Entrada (Input)</strong><br>
-                        <span class="text-gray-500 text-[10px]">Matriz de Píxeles 224x224 RGB</span>
-                    </div>
-                    <i class="fa-solid fa-chevron-right text-indigo-300 hidden md:block"></i>
-                    <i class="fa-solid fa-chevron-down text-indigo-300 md:hidden"></i>
-                    <div class="p-2 rounded-xl flex-1 border border-blue-100 bg-white shadow-sm w-full">
-                        <i class="fa-solid fa-network-wired text-2xl text-blue-500 mb-1"></i><br>
-                        <strong class="text-gray-800">2. Algoritmo</strong><br>
-                        <span class="text-gray-500 text-[10px]">Transfer Learning con Red Neuronal Convolucional (MobileNet)</span>
-                    </div>
-                    <i class="fa-solid fa-chevron-right text-indigo-300 hidden md:block"></i>
-                    <i class="fa-solid fa-chevron-down text-indigo-300 md:hidden"></i>
-                    <div class="p-2 rounded-xl flex-1 border border-purple-100 bg-white shadow-sm w-full">
-                        <i class="fa-brands fa-js text-2xl text-purple-500 mb-1"></i><br>
-                        <strong class="text-gray-800">3. Lenguaje</strong><br>
-                        <span class="text-gray-500 text-[10px]">JavaScript + ml5.js (TensorFlow)</span>
-                    </div>
-                    <i class="fa-solid fa-chevron-right text-indigo-300 hidden md:block"></i>
-                    <i class="fa-solid fa-chevron-down text-indigo-300 md:hidden"></i>
-                    <div class="p-2 rounded-xl flex-1 border border-green-100 bg-white shadow-sm w-full">
-                        <i class="fa-solid fa-chart-simple text-2xl text-green-500 mb-1"></i><br>
-                        <strong class="text-gray-800">4. Salida (Output)</strong><br>
-                        <span class="text-gray-500 text-[10px]">Predicción y Probabilidad (Softmax)</span>
-                    </div>
+        <!-- Panel Pedagógico (Humano y Explicativo) -->
+        <section class="glass-panel rounded-2xl p-5 border-l-4 border-indigo-500">
+            <h3 class="text-lg font-bold text-white mb-3"><i class="fa-solid fa-map-location-dot text-indigo-400 mr-2"></i> Tu misión en 3 sencillos pasos:</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-slate-300">
+                <div class="bg-slate-800/50 p-4 rounded-xl border border-slate-700 hover:bg-slate-700/80 transition-colors">
+                    <strong class="text-indigo-400 block mb-1 text-base"><span class="bg-indigo-600 text-white px-2 py-0.5 rounded-full text-xs mr-2">1</span> Recolecta</strong> 
+                    Usa la cámara para capturar fotos haciendo gestos o mostrando formas. ¡La IA necesita al menos <b class="text-white">30 fotos</b> por categoría!
                 </div>
-                <div class="mt-3 bg-indigo-100/50 p-3 rounded-lg border border-indigo-200">
-                    <p class="text-sm text-indigo-900 leading-tight">
-                        <strong>¡Conviértete en Científico de Datos!</strong> Estamos usando código para enseñar a la computadora a reconocer patrones a partir de ejemplos (tus fotos), en lugar de programar reglas fijas. ¡A esto se le llama Machine Learning!
-                    </p>
+                <div class="bg-slate-800/50 p-4 rounded-xl border border-slate-700 hover:bg-slate-700/80 transition-colors">
+                    <strong class="text-cyan-400 block mb-1 text-base"><span class="bg-cyan-600 text-white px-2 py-0.5 rounded-full text-xs mr-2">2</span> Entrena</strong> 
+                    Presiona "Entrenar". Verás una gráfica de cómo la IA comete errores y aprende de ellos. Si la línea baja a cero, ¡es más inteligente!
+                </div>
+                <div class="bg-slate-800/50 p-4 rounded-xl border border-slate-700 hover:bg-slate-700/80 transition-colors">
+                    <strong class="text-emerald-400 block mb-1 text-base"><span class="bg-emerald-600 text-white px-2 py-0.5 rounded-full text-xs mr-2">3</span> Prueba y Fallo</strong> 
+                    Pruébala en vivo. Si se equivoca, a eso le llamamos <b class="text-white">"Sesgo" (Bias)</b>. Significa que le faltan ejemplos. ¡Agrega más fotos y re-entrena!
                 </div>
             </div>
+        </section>
 
-            <!-- Contenedor de Predicciones -->
-            <div class="glass-panel rounded-2xl shadow-lg p-4 flex-1 flex flex-col">
-                <h2 class="text-lg font-bold mb-4 text-indigo-800"><i class="fa-solid fa-chart-simple mr-2"></i> Resultados en Vivo</h2>
+        <!-- Métricas en Tiempo Real -->
+        <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <!-- Total Dataset -->
+            <div class="glass-panel p-4 rounded-2xl flex items-center justify-between">
+                <div>
+                    <p class="text-xs text-slate-400 uppercase tracking-wider font-semibold">Total Imágenes</p>
+                    <p class="text-3xl font-black text-white font-mono mt-1" id="total-samples-count">0</p>
+                </div>
+                <i class="fa-solid fa-images text-3xl text-indigo-500/50"></i>
+            </div>
+            
+            <!-- Tiempo de Inferencia -->
+            <div class="glass-panel p-4 rounded-2xl flex items-center justify-between">
+                <div>
+                    <p class="text-xs text-slate-400 uppercase tracking-wider font-semibold">Tiempo Inferencia</p>
+                    <p class="text-2xl font-black text-cyan-400 font-mono mt-1"><span id="inference-time">--</span><span class="text-sm text-cyan-600 ml-1">ms</span></p>
+                </div>
+                <i class="fa-solid fa-stopwatch text-3xl text-cyan-500/50"></i>
+            </div>
+
+            <!-- Salud del Dataset (Análisis de Sesgo) -->
+            <div class="glass-panel p-4 rounded-2xl col-span-1 md:col-span-2 flex flex-col justify-center relative overflow-hidden">
+                <div class="flex justify-between items-end mb-2 z-10">
+                    <div>
+                        <h4 class="text-sm font-bold text-slate-200"><i class="fa-solid fa-scale-balanced text-orange-400 mr-1"></i> Equilibrio de los Datos</h4>
+                        <p class="text-[10px] text-slate-400 leading-tight">Evita el "Sesgo": mantén las categorías con igual cantidad de fotos.</p>
+                    </div>
+                    <span id="data-health-badge" class="text-[10px] font-bold bg-slate-700 text-slate-300 px-2 py-1 rounded-md shadow">Analizando...</span>
+                </div>
+                <div class="w-full bg-slate-800 rounded-full h-2.5 shadow-inner z-10">
+                    <div id="data-balance-bar" class="bg-slate-500 h-2.5 rounded-full transition-all duration-1000 w-0"></div>
+                </div>
+                <!-- Decoración de fondo -->
+                <i class="fa-solid fa-database text-6xl text-slate-700/20 absolute -right-4 -bottom-4"></i>
+            </div>
+        </section>
+
+        <div class="flex flex-col lg:flex-row gap-6">
+            
+            <!-- Columna Izquierda: Cámara y Predicción -->
+            <div class="w-full lg:w-1/3 flex flex-col gap-4">
                 
-                <div id="prediction-container" class="flex-1 flex flex-col justify-center items-center opacity-50 transition-opacity duration-300">
-                    <div id="primary-result" class="text-4xl font-extrabold text-indigo-600 mb-2">---</div>
-                    <div class="w-full max-w-xs bg-gray-200 rounded-full h-4 mb-4 overflow-hidden">
-                        <div id="confidence-bar" class="bg-indigo-600 h-4 rounded-full transition-all duration-300" style="width: 0%"></div>
+                <!-- Visor de Cámara -->
+                <div class="glass-panel p-4 rounded-2xl flex flex-col items-center relative overflow-hidden group">
+                    <h2 class="text-sm uppercase tracking-wider font-bold text-slate-300 w-full mb-3 flex items-center justify-between">
+                        <span><i class="fa-solid fa-camera mr-2 text-indigo-400"></i> Entrada (Input)</span>
+                        <span class="text-[10px] bg-slate-800 px-2 py-1 rounded text-slate-400 font-mono">224x224px RGB</span>
+                    </h2>
+                    
+                    <div id="video-container" class="relative w-full rounded-xl overflow-hidden shadow-[0_0_15px_rgba(0,0,0,0.5)] border border-slate-600 bg-black aspect-[4/3] flex items-center justify-center">
+                        <!-- Mensaje de espera si la cámara tarda -->
+                        <span id="camera-loading" class="absolute text-slate-400 text-sm flex flex-col items-center">
+                            <i class="fa-solid fa-video text-2xl mb-2 animate-pulse"></i> Activando cámara...
+                        </span>
+                        <video id="video" autoplay playsinline muted class="absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-500 transform scale-x-[-1]"></video>
                     </div>
-                    <p id="confidence-text" class="text-sm font-medium text-gray-600">Confianza: 0%</p>
+                    
+                    <!-- Diagrama de Extracción -->
+                    <div class="mt-4 w-full bg-slate-800/50 p-3 rounded-xl border border-slate-700 text-center text-xs text-slate-400">
+                        <i class="fa-solid fa-network-wired text-indigo-400 mb-1 text-lg"></i>
+                        <p>El modelo <strong>MobileNet</strong> extrae características (bordes, formas) de tu cámara en tiempo real.</p>
+                    </div>
                 </div>
 
-                <div id="training-placeholder" class="flex-1 flex flex-col justify-center items-center text-center">
-                    <i class="fa-solid fa-graduation-cap text-4xl text-gray-300 mb-2"></i>
-                    <p class="text-gray-500">Agrega ejemplos y entrena el modelo para ver predicciones.</p>
+                <!-- Resultados de Predicción (Softmax) -->
+                <div class="glass-panel p-4 rounded-2xl flex-grow">
+                    <h2 class="text-sm uppercase tracking-wider font-bold text-slate-300 mb-3"><i class="fa-solid fa-chart-bar mr-2 text-cyan-400"></i> Probabilidad (Softmax)</h2>
+                    <div id="prediction-container" class="flex flex-col items-center justify-center h-40 text-center opacity-50">
+                        <i class="fa-solid fa-eye-slash text-4xl text-slate-600 mb-2"></i>
+                        <p class="text-sm text-slate-400">Entrena el modelo primero<br>para ver resultados.</p>
+                    </div>
+                    <!-- Barras de confianza dinámicas irán aquí -->
+                    <div id="confidence-bars" class="space-y-2 hidden">
+                        <!-- Generado por JS -->
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Panel Derecho: Clases y Entrenamiento -->
-        <div class="w-full lg:w-1/2 flex flex-col h-full glass-panel rounded-2xl shadow-lg p-4">
-            <h2 class="text-lg font-bold mb-4 text-indigo-800 flex justify-between items-center">
-                <span><i class="fa-solid fa-layer-group mr-2"></i> Categorías a Aprender</span>
-                <button onclick="addNewClass()" class="text-sm bg-indigo-100 hover:bg-indigo-200 text-indigo-700 px-3 py-1 rounded-md transition">
-                    <i class="fa-solid fa-plus mr-1"></i> Añadir Clase
-                </button>
-            </h2>
-
-            <!-- Lista de Clases -->
-            <div id="classes-list" class="flex-1 overflow-y-auto pr-2 flex flex-col gap-3">
-                <!-- Las clases se generarán dinámicamente aquí -->
-            </div>
-
-            <!-- Sección de Entrenamiento -->
-            <div class="mt-4 pt-4 border-t border-gray-200">
-                <div class="flex justify-between items-center mb-2">
-                    <span class="text-sm font-semibold text-gray-700">Estado del Entrenamiento</span>
-                    <span id="loss-display" class="text-xs text-gray-500 font-mono">Pérdida: --</span>
+            <!-- Área de Clases (Dataset) -->
+            <div class="w-full lg:w-2/3 glass-panel p-4 sm:p-6 rounded-2xl flex flex-col h-[600px]">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-sm sm:text-base uppercase tracking-wider font-bold text-slate-300">
+                        <i class="fa-solid fa-folder-tree mr-2 text-indigo-400"></i> Tu Dataset Local
+                    </h2>
+                    <button onclick="addNewClass()" class="bg-indigo-600/20 hover:bg-indigo-600/40 text-indigo-300 border border-indigo-500/50 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors">
+                        <i class="fa-solid fa-plus mr-1"></i> Nueva Clase
+                    </button>
                 </div>
                 
-                <!-- Barra de progreso de entrenamiento -->
-                <div class="w-full bg-gray-200 rounded-full h-2.5 mb-4 overflow-hidden">
-                    <div id="train-progress" class="bg-green-500 h-2.5 rounded-full transition-all duration-300" style="width: 0%"></div>
+                <!-- Grid de Tarjetas de Clases (Scrollable) -->
+                <div id="classes-container" class="grid grid-cols-cards gap-4 overflow-y-auto pr-2 pb-4 flex-grow content-start">
+                    <!-- Las clases se generan dinámicamente con JS -->
                 </div>
 
-                <button id="train-btn" onclick="startTraining()" disabled class="w-full bg-indigo-600 hover:bg-indigo-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-bold py-3 px-4 rounded-xl shadow-md transition-all flex justify-center items-center gap-2">
-                    <i class="fa-solid fa-cogs"></i>
-                    <span>Entrenar Modelo</span>
-                </button>
+                <!-- Controles de Entrenamiento y Gráfica -->
+                <div class="mt-4 pt-4 border-t border-slate-700 grid grid-cols-1 md:grid-cols-2 gap-4">
+                    
+                    <!-- Botón y Estado -->
+                    <div class="flex flex-col justify-center gap-3">
+                        <button id="train-btn" onclick="startTraining()" disabled class="w-full bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-500 hover:to-blue-500 disabled:from-slate-700 disabled:to-slate-700 disabled:text-slate-500 disabled:cursor-not-allowed text-white font-bold py-4 px-4 rounded-xl shadow-lg transition-all flex justify-center items-center gap-3 text-lg relative overflow-hidden group">
+                            <i class="fa-solid fa-cogs group-hover:rotate-180 transition-transform duration-500"></i>
+                            <span id="train-btn-text">Enseñar a la IA (Entrenar)</span>
+                            <!-- Progreso interno del botón -->
+                            <div id="train-progress-bg" class="absolute left-0 top-0 bottom-0 bg-white/20 w-0 transition-all duration-100 ease-linear"></div>
+                        </button>
+                        
+                        <button id="download-btn" onclick="downloadModel()" class="hidden w-full bg-emerald-600/20 hover:bg-emerald-600/40 border border-emerald-500/50 text-emerald-400 font-bold py-2 px-4 rounded-xl transition-all justify-center items-center gap-2 text-sm">
+                            <i class="fa-solid fa-download"></i> Descargar Modelo Entrenado
+                        </button>
+                    </div>
 
-                <!-- Botón de Descarga Oculto por defecto -->
-                <button id="download-btn" onclick="downloadModel()" class="hidden w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-4 rounded-xl shadow-md transition-all mt-3 justify-center items-center gap-2">
-                    <i class="fa-solid fa-download"></i>
-                    <span>Descargar Modelo Entrenado</span>
-                </button>
+                    <!-- Gráfico de Pérdida (Loss) -->
+                    <div class="bg-slate-900 rounded-xl p-2 border border-slate-700 h-32 relative flex flex-col justify-between">
+                        <span class="absolute top-2 left-3 text-[10px] text-slate-400 font-mono z-10"><i class="fa-solid fa-chart-line mr-1"></i> Pérdida (Loss)</span>
+                        <span id="loss-value" class="absolute top-2 right-3 text-xs text-indigo-400 font-bold z-10">--</span>
+                        <div class="w-full h-full relative pt-4">
+                            <canvas id="lossChart"></canvas>
+                        </div>
+                    </div>
+
+                </div>
             </div>
         </div>
     </main>
@@ -174,292 +230,374 @@
         let featureExtractor;
         let classifier;
         let video;
+        let lossChart;
         let isModelReady = false;
         let isTraining = false;
         let isPredicting = false;
         let totalExamples = 0;
+        let lastPredictionTime = 0;
+        
+        // Datos para el gráfico
+        let lossData = { labels: [], data: [] };
 
-        // Estructura de datos para nuestras clases (Ampliadas para gamificación)
+        // Definición de las clases pedagógicas
         let classesData = [
-            { id: 'class_0', name: '😁 Cara Feliz', count: 0, color: 'bg-green-500', hover: 'hover:bg-green-600' },
-            { id: 'class_1', name: '😲 Cara Sorprendida', count: 0, color: 'bg-yellow-500', hover: 'hover:bg-yellow-600' },
-            { id: 'class_2', name: '✌️ Seña de Paz', count: 0, color: 'bg-purple-500', hover: 'hover:bg-purple-600' },
-            { id: 'class_3', name: '👍 Pulgar Arriba', count: 0, color: 'bg-blue-500', hover: 'hover:bg-blue-600' },
-            { id: 'class_4', name: '⭕ Forma: Círculo', count: 0, color: 'bg-orange-500', hover: 'hover:bg-orange-600' },
-            { id: 'class_5', name: '📐 Forma: Triángulo', count: 0, color: 'bg-pink-500', hover: 'hover:bg-pink-600' },
-            { id: 'class_6', name: '⬛ Fondo sin nada', count: 0, color: 'bg-gray-500', hover: 'hover:bg-gray-600' }
+            { id: 'class_0', name: '😁 Cara Feliz', count: 0, color: 'text-green-400', bg: 'bg-green-500', icon: 'fa-face-smile' },
+            { id: 'class_1', name: '😲 Sorprendido/a', count: 0, color: 'text-yellow-400', bg: 'bg-yellow-500', icon: 'fa-face-surprise' },
+            { id: 'class_2', name: '✌️ Seña de Paz', count: 0, color: 'text-purple-400', bg: 'bg-purple-500', icon: 'fa-hand-peace' },
+            { id: 'class_3', name: '⭕ Forma Círculo', count: 0, color: 'text-orange-400', bg: 'bg-orange-500', icon: 'fa-circle' },
+            { id: 'class_4', name: '⬛ Fondo (Nada)', count: 0, color: 'text-slate-400', bg: 'bg-slate-500', icon: 'fa-image' }
         ];
-
         let classCounter = classesData.length;
 
-        // --- Configuración Inicial ---
-        window.addEventListener('DOMContentLoaded', () => {
-            setupUI();
-            setupWebcam();
+        // --- Configuración Inicial e Interfaz ---
+        document.addEventListener('DOMContentLoaded', () => {
+            initChart();
+            renderClasses();
+            initCamera();
+            setInterval(updateDataMetricsUI, 1000); // Bucle para la UI de Ciencia de Datos
         });
 
-        function setupUI() {
-            renderClasses();
-        }
-
-        function renderClasses() {
-            const container = document.getElementById('classes-list');
-            container.innerHTML = ''; // Limpiar
-
-            classesData.forEach((cls, index) => {
-                const classHTML = `
-                    <div class="bg-white border border-gray-200 rounded-xl p-3 shadow-sm flex flex-col gap-2 relative group">
-                        ${index > 4 ? `<button onclick="removeClass('${cls.id}')" class="absolute top-2 right-2 text-gray-400 hover:text-red-500 transition opacity-0 group-hover:opacity-100"><i class="fa-solid fa-times"></i></button>` : ''}
-                        
-                        <div class="flex items-center gap-2 pr-6">
-                            <input type="text" value="${cls.name}" 
-                                onchange="updateClassName('${cls.id}', this.value)"
-                                class="font-bold text-gray-700 bg-transparent border-b border-transparent hover:border-gray-300 focus:border-indigo-500 focus:outline-none w-full transition">
-                        </div>
-                        
-                        <div class="flex items-center gap-3">
-                            <button onclick="addExample('${cls.id}')" 
-                                class="${cls.color} ${cls.hover} text-white px-4 py-2 rounded-lg font-medium text-sm transition-all shadow-sm flex-1 flex justify-center items-center gap-2 active:scale-95 disabled:opacity-50"
-                                ${!isModelReady ? 'disabled' : ''}>
-                                <i class="fa-solid fa-camera"></i> Capturar
-                            </button>
-                            <div class="bg-gray-100 px-3 py-2 rounded-lg text-sm font-mono text-gray-600 min-w-[3rem] text-center font-bold">
-                                ${cls.count}
-                            </div>
-                        </div>
-                    </div>
-                `;
-                container.insertAdjacentHTML('beforeend', classHTML);
+        // Configuración de Chart.js para la pérdida
+        function initChart() {
+            const ctx = document.getElementById('lossChart').getContext('2d');
+            lossChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Pérdida (Loss)',
+                        data: [],
+                        borderColor: '#818cf8', // Indigo 400
+                        backgroundColor: 'rgba(129, 140, 248, 0.2)',
+                        borderWidth: 2,
+                        pointRadius: 0,
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false }, tooltip: { enabled: false } },
+                    scales: {
+                        x: { display: false },
+                        y: { 
+                            display: true, 
+                            position: 'right',
+                            grid: { color: 'rgba(255,255,255,0.05)' },
+                            ticks: { color: '#64748b', font: { size: 9 } }
+                        }
+                    },
+                    animation: { duration: 0 } // Desactivar para actualización rápida
+                }
             });
-            checkTrainingReady();
         }
 
-        function addNewClass() {
-            const newId = `class_${classCounter++}`;
-            const colors = ['bg-pink-500', 'bg-teal-500', 'bg-indigo-500', 'bg-rose-500', 'bg-cyan-500'];
-            const hoverColors = ['hover:bg-pink-600', 'hover:bg-teal-600', 'hover:bg-indigo-600', 'hover:bg-rose-600', 'hover:bg-cyan-600'];
-            const colorIndex = classCounter % colors.length;
-
-            classesData.push({
-                id: newId,
-                name: `Nueva Clase ${classCounter}`,
-                count: 0,
-                color: colors[colorIndex],
-                hover: hoverColors[colorIndex]
-            });
-            renderClasses();
-        }
-
-        function removeClass(id) {
-            classesData = classesData.filter(c => c.id !== id);
-            renderClasses();
-        }
-
-        function updateClassName(id, newName) {
-            const cls = classesData.find(c => c.id === id);
-            if (cls) cls.name = newName;
-        }
-
-        async function setupWebcam() {
-            video = document.getElementById('webcam');
+        // --- STREAMING_CHUNK: Lógica de Cámara y Machine Learning (ml5.js) ---
+        
+        async function initCamera() {
+            video = document.getElementById('video');
             try {
                 const stream = await navigator.mediaDevices.getUserMedia({ 
-                    video: { width: 640, height: 480, facingMode: "user" } 
+                    video: { facingMode: "user", width: 224, height: 224 } 
                 });
                 video.srcObject = stream;
-                // Una vez el video se reproduce, iniciamos ml5
-                video.onloadeddata = () => {
-                    initML5();
+                video.onloadedmetadata = () => {
+                    video.play();
+                    video.style.opacity = "1";
+                    document.getElementById('camera-loading').style.display = 'none';
+                    initML5(); // Iniciar ml5 solo cuando la cámara está lista
                 };
             } catch (err) {
-                console.error("Error accediendo a la cámara:", err);
-                updateStatus("Error de cámara", "bg-red-100 text-red-800", "fa-video-slash");
-                alert("Por favor permite el acceso a la cámara para usar la aplicación.");
+                console.error("Error al acceder a la cámara:", err);
+                document.getElementById('camera-loading').innerHTML = `<i class="fa-solid fa-triangle-exclamation text-red-400 text-2xl mb-2"></i> Error de cámara. Usa HTTPS o Localhost.`;
+                document.getElementById('camera-loading').classList.add("text-red-400");
+                // Aún sin cámara, permitimos inicializar para cargar fotos manualmente
+                initML5();
             }
         }
 
         function initML5() {
-            updateStatus("Cargando modelo neuronal...", "bg-yellow-100 text-yellow-800", "fa-spinner fa-spin");
-            
-            // Usamos MobileNet como extractor de características
+            updateStatus("Descargando MobileNet (20MB)...", "bg-yellow-500/20 text-yellow-300", "fa-spinner fa-spin");
+            // Usamos MobileNet como extractor de características base
             featureExtractor = ml5.featureExtractor('MobileNet', modelLoaded);
         }
 
         function modelLoaded() {
-            // Creamos un clasificador personalizado usando el video y el extractor
+            // Creamos un clasificador personalizado vacío sobre MobileNet
             classifier = featureExtractor.classification(video, videoReady);
         }
 
         function videoReady() {
             isModelReady = true;
-            updateStatus("Listo para aprender", "bg-green-100 text-green-800", "fa-check-circle");
-            // Re-renderizar para habilitar botones
-            renderClasses();
+            updateStatus("IA Lista. ¡Agrega datos!", "bg-emerald-500/20 text-emerald-400 border-emerald-500/50", "fa-check-circle");
         }
 
-        function updateStatus(text, colorClasses, iconClass) {
+        function updateStatus(text, colorClass, iconClass) {
             const badge = document.getElementById('status-badge');
-            badge.className = `px-3 py-1 rounded-full text-sm font-semibold flex items-center transition-colors duration-300 ${colorClasses}`;
+            badge.className = `border px-4 py-2 rounded-full text-xs sm:text-sm font-bold flex items-center shadow-lg w-full md:w-auto justify-center transition-all duration-300 ${colorClass}`;
             badge.innerHTML = `<i class="fa-solid ${iconClass} mr-2"></i> ${text}`;
+        }
+
+        // --- STREAMING_CHUNK: Gestión del Dataset UI y Lógica ---
+
+        function renderClasses() {
+            const container = document.getElementById('classes-container');
+            container.innerHTML = '';
+            
+            classesData.forEach((cls, index) => {
+                const card = document.createElement('div');
+                card.className = "bg-slate-800/80 border border-slate-700 rounded-xl p-3 flex flex-col shadow-sm relative overflow-hidden group hover:border-slate-500 transition-colors";
+                
+                card.innerHTML = `
+                    <div class="flex justify-between items-start mb-2 z-10">
+                        <h3 class="font-bold text-sm text-slate-200 truncate pr-2 w-full" title="${cls.name}">
+                            <i class="fa-solid ${cls.icon} ${cls.color} mr-1"></i> ${cls.name}
+                        </h3>
+                    </div>
+                    
+                    <div class="flex-grow flex items-center justify-center py-2 z-10">
+                        <div class="text-3xl font-black font-mono text-slate-300 tracking-tighter" id="count-${cls.id}">${cls.count}</div>
+                        <span class="text-[10px] text-slate-500 ml-1 uppercase">Imágenes</span>
+                    </div>
+                    
+                    <button onclick="addExample('${cls.id}')" ${!isModelReady ? 'disabled' : ''} class="mt-2 w-full ${cls.bg} hover:brightness-110 disabled:bg-slate-700 disabled:text-slate-500 disabled:cursor-not-allowed text-white text-xs font-bold py-2 rounded-lg transition-all active:scale-95 shadow-md z-10 flex items-center justify-center gap-1">
+                        <i class="fa-solid fa-camera"></i> Capturar
+                    </button>
+                    
+                    <!-- Decoración de fondo suave -->
+                    <div class="${cls.bg} absolute -bottom-10 -right-10 w-24 h-24 rounded-full opacity-10 blur-xl"></div>
+                `;
+                container.appendChild(card);
+            });
+            checkTrainButton();
+        }
+
+        function addNewClass() {
+            const name = prompt("Nombre de la nueva clase (Ej: 'Taza', 'Triste'):");
+            if (name && name.trim() !== '') {
+                const newId = `class_${classCounter++}`;
+                classesData.push({ 
+                    id: newId, 
+                    name: name, 
+                    count: 0, 
+                    color: 'text-indigo-400', 
+                    bg: 'bg-indigo-600',
+                    icon: 'fa-tag'
+                });
+                renderClasses();
+            }
         }
 
         function addExample(classId) {
             if (!isModelReady || isTraining) return;
-
+            
             const cls = classesData.find(c => c.id === classId);
-            if (!cls) return;
+            if (cls) {
+                // ml5.js: Añadir imagen actual del video asociada a la etiqueta (name)
+                classifier.addImage(cls.name);
+                
+                // Efecto visual de flash en el video
+                const v = document.getElementById('video-container');
+                v.classList.add('ring-4', 'ring-white');
+                setTimeout(() => v.classList.remove('ring-4', 'ring-white'), 100);
 
-            // Añadir la imagen actual del video al clasificador con su etiqueta
-            classifier.addImage(cls.name);
-            
-            // Efecto visual de flash
-            const flash = document.getElementById('flash-overlay');
-            flash.classList.remove('capture-flash');
-            void flash.offsetWidth; // trigger reflow
-            flash.classList.add('capture-flash');
-
-            // Actualizar contadores
-            cls.count++;
-            totalExamples++;
-            renderClasses();
-        }
-
-        function checkTrainingReady() {
-            const trainBtn = document.getElementById('train-btn');
-            // Requerimos al menos ejemplos en 2 clases diferentes para entrenar
-            const classesWithData = classesData.filter(c => c.count > 0).length;
-            
-            if (classesWithData >= 2) {
-                trainBtn.disabled = false;
-                trainBtn.classList.add('pulse-ring');
-            } else {
-                trainBtn.disabled = true;
-                trainBtn.classList.remove('pulse-ring');
+                // Actualizar contadores
+                cls.count++;
+                totalExamples++;
+                document.getElementById(`count-${classId}`).innerText = cls.count;
+                document.getElementById('total-samples-count').innerText = totalExamples;
+                
+                checkTrainButton();
             }
         }
 
+        // --- STREAMING_CHUNK: Métricas de Data Science (Salud y Balance) ---
+
+        function updateDataMetricsUI() {
+            if (totalExamples === 0) return;
+            
+            let counts = classesData.map(c => c.count);
+            let maxCount = Math.max(...counts);
+            let minCount = Math.min(...counts);
+            let activeClasses = counts.filter(c => c > 0).length;
+            
+            const badge = document.getElementById('data-health-badge');
+            const bar = document.getElementById('data-balance-bar');
+            
+            // Lógica Pedagógica de Balance y Sesgo (Bias)
+            if (activeClasses < 2) {
+                badge.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> Necesita contraste';
+                badge.className = "text-[10px] font-bold bg-red-900/50 text-red-400 border border-red-800/50 px-2 py-1 rounded-md shadow";
+                bar.style.width = "15%";
+                bar.className = "bg-red-500 h-2.5 rounded-full transition-all duration-1000 shadow-[0_0_8px_rgba(239,68,68,0.6)]";
+            } else if (maxCount - minCount > 15 && minCount > 0) {
+                badge.innerHTML = '<i class="fa-solid fa-scale-unbalanced"></i> Sesgo (Desbalance)';
+                badge.className = "text-[10px] font-bold bg-orange-900/50 text-orange-400 border border-orange-800/50 px-2 py-1 rounded-md shadow";
+                bar.style.width = "45%";
+                bar.className = "bg-orange-500 h-2.5 rounded-full transition-all duration-1000 shadow-[0_0_8px_rgba(249,115,22,0.6)]";
+            } else if (minCount >= 20 && (maxCount - minCount <= 10)) {
+                badge.innerHTML = '<i class="fa-solid fa-check-double"></i> ¡Dataset Excelente!';
+                badge.className = "text-[10px] font-bold bg-emerald-900/50 text-emerald-400 border border-emerald-800/50 px-2 py-1 rounded-md shadow";
+                bar.style.width = "100%";
+                bar.className = "bg-emerald-500 h-2.5 rounded-full transition-all duration-1000 shadow-[0_0_12px_rgba(16,185,129,0.8)]";
+            } else {
+                badge.innerHTML = '<i class="fa-solid fa-chart-line"></i> Aprendiendo...';
+                badge.className = "text-[10px] font-bold bg-blue-900/50 text-blue-400 border border-blue-800/50 px-2 py-1 rounded-md shadow";
+                bar.style.width = "70%";
+                bar.className = "bg-blue-500 h-2.5 rounded-full transition-all duration-1000 shadow-[0_0_8px_rgba(59,130,246,0.6)]";
+            }
+        }
+
+        function checkTrainButton() {
+            const activeClasses = classesData.filter(c => c.count > 0).length;
+            const btn = document.getElementById('train-btn');
+            // Requerimos al menos 2 clases para entrenar
+            if (activeClasses >= 2) {
+                btn.disabled = false;
+            }
+        }
+
+        // --- STREAMING_CHUNK: Entrenamiento y Predicción Continua ---
+
         function startTraining() {
             if (isTraining) return;
-            
             isTraining = true;
-            isPredicting = false; // Detener predicción si estaba corriendo
+            isPredicting = false;
             
-            // UI Updates
-            document.getElementById('train-btn').innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Entrenando...';
-            document.getElementById('train-btn').classList.remove('pulse-ring');
-            document.getElementById('train-btn').disabled = true;
-            document.getElementById('prediction-container').classList.add('opacity-50');
+            // Reiniciar gráfico
+            lossData.labels = [];
+            lossData.data = [];
+            lossChart.update();
             
-            updateStatus("Entrenando red neuronal...", "bg-blue-100 text-blue-800", "fa-cogs fa-spin");
+            const btn = document.getElementById('train-btn');
+            const bgProgress = document.getElementById('train-progress-bg');
+            btn.disabled = true;
+            document.getElementById('train-btn-text').innerText = "Entrenando Neuronas...";
+            
+            updateStatus("Entrenando Red...", "bg-blue-500/20 text-blue-400 border-blue-500/50", "fa-cogs fa-spin");
 
-            let epochs = 0;
-            const lossDisplay = document.getElementById('loss-display');
-            const progressBar = document.getElementById('train-progress');
+            // ml5.js: Iniciar entrenamiento con función de callback para cada iteración (epoch)
+            classifier.train(whileTraining);
+        }
 
-            // Llamamos a la función de entrenamiento de ml5
-            classifier.train(function(lossValue) {
-                if (lossValue === null) {
-                    // Entrenamiento finalizado
-                    trainingComplete();
-                } else {
-                    // Actualización de pérdida (Loss)
-                    epochs++;
-                    // Asumimos ~50 iteraciones para la barra de progreso (por defecto en ml5)
-                    const progress = Math.min((epochs / 50) * 100, 100);
-                    progressBar.style.width = `${progress}%`;
-                    lossDisplay.innerText = `Pérdida: ${lossValue.toFixed(4)}`;
-                }
-            });
+        function whileTraining(loss) {
+            if (loss === null) {
+                // Entrenamiento finalizado
+                trainingComplete();
+            } else {
+                // Actualizar gráfica en tiempo real
+                document.getElementById('loss-value').innerText = loss.toFixed(4);
+                lossData.labels.push('');
+                lossData.data.push(loss);
+                lossChart.data.labels = lossData.labels;
+                lossChart.data.datasets[0].data = lossData.data;
+                lossChart.update();
+                
+                // Simular progreso en el botón
+                const progress = Math.min(100, lossData.data.length * 5); // Aprox epochs
+                document.getElementById('train-progress-bg').style.width = `${progress}%`;
+            }
         }
 
         function trainingComplete() {
             isTraining = false;
-            document.getElementById('train-progress').style.width = '100%';
-            document.getElementById('train-btn').innerHTML = '<i class="fa-solid fa-rotate-right"></i> Re-entrenar';
-            document.getElementById('train-btn').disabled = false;
+            isPredicting = true;
             
-            // Mostrar botón de descarga
-            const downloadBtn = document.getElementById('download-btn');
-            downloadBtn.classList.remove('hidden');
-            downloadBtn.classList.add('flex');
+            document.getElementById('train-progress-bg').style.width = '100%';
+            setTimeout(() => document.getElementById('train-progress-bg').style.width = '0%', 1000);
             
-            updateStatus("Modelo Entrenado", "bg-green-500 text-white", "fa-brain");
+            const btn = document.getElementById('train-btn');
+            btn.disabled = false;
+            document.getElementById('train-btn-text').innerText = "Re-entrenar Modelo";
             
-            // Cambiar UI de predicción
-            document.getElementById('training-placeholder').classList.add('hidden');
-            document.getElementById('prediction-container').classList.remove('hidden');
-            document.getElementById('prediction-container').classList.remove('opacity-50');
+            document.getElementById('download-btn').classList.remove('hidden');
+            document.getElementById('download-btn').classList.add('flex');
             
-            startPredicting();
+            updateStatus("Modelo Listo y Clasificando", "bg-emerald-500/20 text-emerald-400 border-emerald-500/50 shadow-[0_0_15px_rgba(16,185,129,0.4)]", "fa-brain");
+            
+            // UI de Predicción
+            document.getElementById('prediction-container').classList.add('hidden');
+            document.getElementById('confidence-bars').classList.remove('hidden');
+            
+            // Iniciar bucle de clasificación
+            classifyFrame();
         }
 
-        function startPredicting() {
-            if (isTraining) return;
-            isPredicting = true;
+        function classifyFrame() {
+            if (!isPredicting) return;
+            lastPredictionTime = performance.now();
             classifier.classify(gotResults);
         }
 
         function gotResults(err, results) {
-            // Si hay un error o ya no estamos prediciendo, salir
             if (err) {
                 console.error(err);
                 return;
             }
-            if (!isPredicting) return;
+            
+            // Calcular tiempo de inferencia
+            const now = performance.now();
+            const inferenceMs = (now - lastPredictionTime).toFixed(0);
+            document.getElementById('inference-time').innerText = inferenceMs;
 
-            // Mostrar el mejor resultado
-            if (results && results.length > 0) {
-                const label = results[0].label;
-                const confidence = results[0].confidence;
-                
-                // Encontrar la clase correspondiente para colores
-                const cls = classesData.find(c => c.name === label);
-                const colorHex = cls ? getHexFromClass(cls.color) : '#4f46e5'; // default indigo
+            // Renderizar barras Softmax
+            renderConfidenceBars(results);
 
-                document.getElementById('primary-result').innerText = label;
-                document.getElementById('primary-result').style.color = colorHex;
-                
-                const percent = Math.round(confidence * 100);
-                const bar = document.getElementById('confidence-bar');
-                bar.style.width = `${percent}%`;
-                bar.style.backgroundColor = colorHex;
-                
-                document.getElementById('confidence-text').innerText = `Confianza: ${percent}%`;
-            }
-
-            // Llamada recursiva para procesar el siguiente frame de video
+            // Continuar el bucle (con un pequeño respiro de 50ms para no congelar la UI)
             setTimeout(() => {
-                if(isPredicting) classifier.classify(gotResults);
-            }, 100); // 10 fps para no saturar el navegador
+                if (isPredicting) {
+                    lastPredictionTime = performance.now();
+                    classifier.classify(gotResults);
+                }
+            }, 50);
         }
 
-        // Función para descargar el modelo entrenado
+        // --- STREAMING_CHUNK: Utilidades y Renderizado de Softmax ---
+
+        function renderConfidenceBars(results) {
+            const container = document.getElementById('confidence-bars');
+            container.innerHTML = '';
+            
+            // Tomar los top 4 resultados para mostrar
+            const topResults = results.slice(0, 4);
+            
+            topResults.forEach((res, index) => {
+                const confidence = (res.confidence * 100).toFixed(1);
+                
+                // Buscar datos de la clase original para el color
+                const cls = classesData.find(c => c.name === res.label);
+                const bgClass = cls ? cls.bg : 'bg-indigo-500';
+                
+                // La barra superior es más brillante
+                const isWinner = index === 0 && res.confidence > 0.5;
+                const opacity = isWinner ? 'opacity-100' : 'opacity-60';
+                const textColor = isWinner ? 'text-white font-bold' : 'text-slate-300';
+                
+                container.innerHTML += `
+                    <div class="mb-2 ${opacity} transition-all duration-200">
+                        <div class="flex justify-between text-xs mb-1">
+                            <span class="${textColor} truncate pr-2 w-3/4">${res.label}</span>
+                            <span class="${textColor} font-mono">${confidence}%</span>
+                        </div>
+                        <div class="w-full bg-slate-800 rounded-full h-2">
+                            <div class="${bgClass} h-2 rounded-full transition-all duration-75" style="width: ${confidence}%"></div>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
         function downloadModel() {
             if (classifier && isModelReady) {
-                updateStatus("Descargando modelo...", "bg-emerald-100 text-emerald-800", "fa-download");
-                // ml5 guarda automáticamente model.json y model.weights.bin
+                updateStatus("Empaquetando modelo...", "bg-cyan-500/20 text-cyan-400 border-cyan-500/50", "fa-box-archive");
+                // ml5.js guarda automáticamente model.json y model.weights.bin en el navegador
                 classifier.save(); 
                 setTimeout(() => {
-                    updateStatus("Modelo Entrenado", "bg-green-500 text-white", "fa-brain");
+                    updateStatus("Modelo Descargado", "bg-emerald-500/20 text-emerald-400 border-emerald-500/50", "fa-check");
                 }, 3000);
             }
-        }
-
-        // Utilidad para extraer color de clases tailwind (aproximación visual)
-        function getHexFromClass(twClass) {
-            const map = {
-                'bg-green-500': '#22c55e',
-                'bg-blue-500': '#3b82f6',
-                'bg-purple-500': '#a855f7',
-                'bg-orange-500': '#f97316',
-                'bg-gray-500': '#6b7280',
-                'bg-pink-500': '#ec4899',
-                'bg-teal-500': '#14b8a6',
-                'bg-indigo-500': '#6366f1',
-                'bg-rose-500': '#f43f5e',
-                'bg-cyan-500': '#06b6d4'
-            };
-            return map[twClass] || '#6366f1';
         }
     </script>
 </body>
